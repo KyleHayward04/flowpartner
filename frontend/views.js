@@ -85,6 +85,28 @@ export async function renderLandingPage() {
           </div>
         </div>
       </section>
+
+      <section class="view">
+        <h2 class="text-center mb-xl">For Freelancers</h2>
+        <div class="grid grid-2">
+          <div class="card">
+            <h4>💼 Quality Projects</h4>
+            <p>Access vetted business opportunities from serious clients ready to invest in quality work.</p>
+          </div>
+          <div class="card">
+            <h4>💰 Fair Compensation</h4>
+            <p>Set your own rates and get paid securely for the value you deliver.</p>
+          </div>
+          <div class="card">
+            <h4>🚀 Grow Your Business</h4>
+            <p>Build your reputation with reviews, expand your portfolio, and attract more clients.</p>
+          </div>
+          <div class="card">
+            <h4>🤝 Direct Communication</h4>
+            <p>Connect directly with business owners without intermediaries or unnecessary fees.</p>
+          </div>
+        </div>
+      </section>
     </div>
   `;
 }
