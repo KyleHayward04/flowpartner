@@ -1,7 +1,7 @@
 // Proposal Routes
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
-import { authenticateToken, requireFreelancer } from '../middleware/auth.middleware.js';
+import { authenticateToken, requireFreelancer, requireEmailVerification } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -9,8 +9,8 @@ const prisma = new PrismaClient();
 // All routes require authentication
 router.use(authenticateToken);
 
-// POST /api/proposals - Submit proposal (freelancers only)
-router.post('/', requireFreelancer, async (req, res) => {
+// POST /api/proposals - Submit proposal (freelancers only, email verified)
+router.post('/', requireFreelancer, requireEmailVerification, async (req, res) => {
     try {
         const { job_id, message, proposed_price } = req.body;
 

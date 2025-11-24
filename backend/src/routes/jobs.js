@@ -1,7 +1,7 @@
 // Job Routes
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
-import { authenticateToken, requireBusinessOwner } from '../middleware/auth.middleware.js';
+import { authenticateToken, requireBusinessOwner, requireEmailVerification } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -9,8 +9,8 @@ const prisma = new PrismaClient();
 // All routes require authentication
 router.use(authenticateToken);
 
-// POST /api/jobs - Create new job (business owners only)
-router.post('/', requireBusinessOwner, async (req, res) => {
+// POST /api/jobs - Create new job (business owners only, email verified)
+router.post('/', requireBusinessOwner, requireEmailVerification, async (req, res) => {
     try {
         const { title, description, category, budget_min, budget_max, deadline } = req.body;
 

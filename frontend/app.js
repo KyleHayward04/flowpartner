@@ -155,6 +155,18 @@ class API {
         return this.request(`/reviews/user/${userId}`);
     }
 
+    // Email verification endpoints
+    static async verifyEmail(token) {
+        return this.request(`/auth/verify-email/${token}`);
+    }
+
+    static async resendVerification(email) {
+        return this.request('/auth/resend-verification', {
+            method: 'POST',
+            body: JSON.stringify({ email })
+        });
+    }
+
     // Admin endpoints
     static async getAllUsers() {
         return this.request('/admin/users');
@@ -236,6 +248,8 @@ const routes = {
     '/pricing': Views.renderPricingPage,
     '/login': Views.renderLoginPage,
     '/signup': Views.renderSignupPage,
+    '/verification-sent': Views.renderVerificationSent,
+    '/verify-email/:token': Views.renderEmailVerification,
     '/business/dashboard': Views.renderBusinessDashboard,
     '/business/create-job': Views.renderCreateJob,
     '/business/job/:id': Views.renderJobDetail,

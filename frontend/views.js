@@ -214,14 +214,12 @@ async function handleSignup(e) {
 
   try {
     const response = await API.signup({ name, email, password, role });
-    saveAuthState(response.token, response.user);
 
-    // Redirect to appropriate dashboard
-    if (role === 'BUSINESS_OWNER') {
-      navigateTo('/business/dashboard');
-    } else {
-      navigateTo('/freelancer/dashboard');
-    }
+    // Store email for verification sent page
+    localStorage.setItem('pendingVerificationEmail', email);
+
+    // Redirect to verification sent page
+    navigateTo('/verification-sent');
   } catch (error) {
     showError(error.message || 'Signup failed');
   }
@@ -1121,4 +1119,149 @@ export async function renderPricingPage() {
   if (window.lucide) {
     lucide.createIcons();
   }
+}
+// Add these to the end of views.js (after the pricing page function)
+
+// ===== Email Verification Sent Page =====
+export async function renderVerificationSent() {
+    const app = document.getElementById('app');
+    const email = localStorage.getItem('pendingVerificationEmail') || '';
+
+    app.innerHTML = `
+    <div class="view">
+      <div class="container-sm">
+        <div class="card text-center">
+          <div style="font-size: 4rem; margin-bottom: var(--space-lg);">📧</div>
+          <h1 class="card-title">Check Your Email</h1>
+          <p style="font-size: var(--font-size-lg); margin-bottom: var(--space-xl);">
+            We've sent a verification link to <strong>${email}</strong>
+          </p>
+          <p class="text-muted mb-lg">
+            Please check your inbox and click the verification link to activate your account.
+            Don't forget to check your spam folder if you don't see it.
+          </p>
+          
+          <div style="background: var(--color-bg-elevated); padding: var(--space-lg); border-radius: var(--radius-lg); margin-bottom: var(--space-xl);">
+            <p class="text-muted" style="margin: 0;">
+              Didn't receive the email?
+            </p>
+            <button onclick="resendVerification()" class="btn btn-secondary mt-md">
+              Resend Verification Email
+            </button>
+          </div>
+
+          <a href="#/login" class="btn btn-primary btn-lg">
+            Go to Login
+          </a>
+        </div>
+      </div>
+    </div>
+  `;
+
+    // Make resend function globally available
+    window.resendVerification = async () => {
+        try {
+            await API.resendVerification(email);
+            showSuccess('Verification email sent! Please check your inbox.');
+        } catch (error) {
+            showError(error.message || 'Failed to resend email');
+        }
+    };
+}
+
+// ===== Email Verification Page =====
+export async function renderEmailVerification(params) {
+    const app = document.getElementById('app');
+    const { token } = params;
+
+    // Show loading state
+    app.innerHTML = `
+    <div class="view">
+      <div class="container-sm">
+        <div class="card text-center">
+          <div class="spinner"></div>
+          <h2>Verifying Your Email...</h2>
+        </div>
+      </div>
+    </div>
+  `;
+
+    try {
+        const response = await API.verifyEmail(token);
+        
+        // Success!
+        app.innerHTML = `
+      <div class="view">
+        <div class="container-sm">
+          <div class="card text-center">
+            <div style="font-size: 5rem; margin-bottom: var(--space-lg);">✅</div>
+            <h1 class="card-title" style="color: var(--color-success);">Email Verified!</h1>
+            <p style="font-size: var(--font-size-lg); margin-bottom: var(--space-xl);">
+              ${response.message || 'Your email has been successfully verified.'}
+            </p>
+            
+            <div style="background: var(--color-bg-elevated); padding: var(--space-lg); border-radius: var(--radius-lg); margin-bottom: var(--space-xl);">
+              <p class="text-muted">
+                You now have full access to FlowPartner! You can create jobs, submit proposals, and start collaborating.
+              </p>
+            </div>
+
+            <a href="#/login" class="btn btn-primary btn-lg">
+              Continue to Login
+            </a>
+          </div>
+        </div>
+      </div>
+    `;
+
+        //Clean up pending email
+        localStorage.removeItem('pendingVerificationEmail');
+
+    } catch (error) {
+        // Error
+        const isExpired = error.message && error.message.includes('expired');
+        const email = localStorage.getItem('pendingVerificationEmail') || '';
+
+        app.innerHTML = `
+      <div class="view">
+        <div class="container-sm">
+          <div class="card text-center">
+            <div style="font-size: 5rem; margin-bottom: var(--space-lg);">⚠️</div>
+            <h1 class="card-title" style="color: var(--color-error);">Verification Failed</h1>
+            <p style="font-size: var(--font-size-lg); margin-bottom: var(--space-xl);">
+              ${error.message || 'Unable to verify your email address.'}
+            </p>
+            
+            ${isExpired && email ? `
+              <div style="background: var(--color-bg-elevated); padding: var(--space-lg); border-radius: var(--radius-lg); margin-bottom: var(--space-xl);">
+                <p class="text-muted mb-md">
+                  Your verification link has expired. Would you like us to send you a new one?
+                </p>
+                <button onclick="resendVerification()" class="btn btn-secondary">
+                  Send New Verification Email
+                </button>
+              </div>
+            ` : ''}
+
+            <a href="#/login" class="btn btn-primary btn-lg">
+              Back to Login
+            </a>
+          </div>
+        </div>
+      </div>
+    `;
+
+        // Make resend function globally available if needed
+        if (isExpired && email) {
+            window.resendVerification = async () => {
+                try {
+                    await API.resendVerification(email);
+                    showSuccess('Verification email sent! Please check your inbox.');
+                    navigateTo('/verification-sent');
+                } catch (err) {
+                    showError(err.message || 'Failed to resend email');
+                }
+            };
+        }
+    }
 }

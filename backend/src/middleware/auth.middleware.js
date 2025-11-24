@@ -1,5 +1,8 @@
 // Authentication Middleware
 import jwt from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
@@ -30,6 +33,36 @@ export function requireRole(...roles) {
 
         next();
     };
+}
+
+// Middleware to require email verification for sensitive actions
+export async function requireEmailVerification(req, res, next) {
+    if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id: req.user.id },
+            select: { email_verified: true }
+        });
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        if (!user.email_verified) {
+            return res.status(403).json({
+                error: 'Please verify your email address to perform this action',
+                emailVerificationRequired: true
+            });
+        }
+
+        next();
+    } catch (error) {
+        console.error('Email verification check error:', error);
+        return res.status(500).json({ error: 'Server error' });
+    }
 }
 
 // Convenience middleware for specific roles

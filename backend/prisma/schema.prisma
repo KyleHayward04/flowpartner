@@ -34,6 +34,12 @@ model User {
   password_hash String
   role          Role
   active        Boolean   @default(true)
+  
+  // Email verification fields
+  email_verified              Boolean   @default(false)
+  email_verification_token    String?   @unique
+  email_verification_expires  DateTime?
+  
   created_at    DateTime  @default(now())
   updated_at    DateTime  @updatedAt
 
