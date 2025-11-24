@@ -54,7 +54,7 @@ export const sendVerificationEmail = async (email, name, token) => {
                         <p>Thank you for signing up for FlowPartner! We're excited to have you on board.</p>
                         <p>To complete your registration and start connecting with ${email.includes('business') ? 'talented freelancers' : 'exciting projects'}, please verify your email address by clicking the button below:</p>
                         <center>
-                            <a href="${verificationUrl}" class="button">Verify Email Address</a>
+                            <a href="${verificationUrl}" class="button" style="color: white !important; text-decoration: none;">Verify Email Address</a>
                         </center>
                         <p>Or copy and paste this link into your browser:</p>
                         <p style="background: #e2e8f0; padding: 10px; border-radius: 5px; word-break: break-all;">${verificationUrl}</p>
@@ -129,7 +129,7 @@ export const sendWelcomeEmail = async (email, name, role) => {
                             </ul>
                         `}
                         <center>
-                            <a href="${dashboardUrl}" class="button">Go to Dashboard</a>
+                            <a href="${dashboardUrl}" class="button" style="color: white !important; text-decoration: none;">Go to Dashboard</a>
                         </center>
                         <p>If you have any questions, feel free to reach out to our support team.</p>
                         <p>Happy collaborating!<br>The FlowPartner Team</p>
