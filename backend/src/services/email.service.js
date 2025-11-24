@@ -4,10 +4,18 @@ import crypto from 'crypto';
 
 // Create reusable transporter
 const createTransporter = () => {
+    if (!process.env.EMAIL_HOST || !process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+        console.error('Missing email env vars', {
+            EMAIL_HOST: process.env.EMAIL_HOST,
+            EMAIL_USER: process.env.EMAIL_USER ? '[set]' : '[missing]',
+        });
+        throw new Error('Email env vars not configured');
+    }
+
     return nodemailer.createTransport({
-        host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+        host: process.env.EMAIL_HOST,         // no fallback
         port: parseInt(process.env.EMAIL_PORT || '587'),
-        secure: false, // true for 465, false for other ports
+        secure: false,                        // SendGrid uses STARTTLS on 587
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASSWORD
