@@ -12,14 +12,34 @@ const createTransporter = () => {
         throw new Error('Email env vars not configured');
     }
 
-    return nodemailer.createTransport({
-        host: process.env.EMAIL_HOST,         // no fallback
-        port: parseInt(process.env.EMAIL_PORT || '587'),
-        secure: false,                        // SendGrid uses STARTTLS on 587
+    const port = parseInt(process.env.EMAIL_PORT || '465');
+    const isSSL = port === 465;
+
+    console.log('Creating email transporter:', {
+        host: process.env.EMAIL_HOST,
+        port,
+        secure: isSSL,
+        user: process.env.EMAIL_USER
+    });
+
+    return nodemailer.createTransporter({
+        host: process.env.EMAIL_HOST,
+        port: port,
+        secure: isSSL,  // true for 465 (SSL), false for 587 (STARTTLS)
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASSWORD
-        }
+        },
+        // Increase timeout for slower connections
+        connectionTimeout: 10000,  // 10 seconds
+        greetingTimeout: 10000,
+        socketTimeout: 10000,
+        // Additional options for better reliability
+        pool: true,
+        maxConnections: 5,
+        maxMessages: 10,
+        rateDelta: 1000,
+        rateLimit: 5
     });
 };
 
