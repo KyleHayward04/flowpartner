@@ -4,33 +4,33 @@ import { getAllCategories, getTemplatesByCategory } from './ai-templates.js';
 
 // ===== Utility Functions =====
 function formatDate(dateString) {
-    return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
 }
 
 function formatCurrency(amount) {
-    return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        minimumFractionDigits: 0
-    }).format(amount);
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0
+  }).format(amount);
 }
 
 function showError(message) {
-    alert(message); // Simple for now, can enhance with toast notifications
+  alert(message); // Simple for now, can enhance with toast notifications
 }
 
 function showSuccess(message) {
-    alert(message);
+  alert(message);
 }
 
 // ===== Landing Page =====
 export async function renderLandingPage() {
-    const app = document.getElementById('app');
-    app.innerHTML = `
+  const app = document.getElementById('app');
+  app.innerHTML = `
     <div class="hero">
       <div class="container">
         <h1 class="hero-title">Connect. Collaborate. Grow.</h1>
@@ -91,8 +91,8 @@ export async function renderLandingPage() {
 
 // ===== Login Page =====
 export async function renderLoginPage() {
-    const app = document.getElementById('app');
-    app.innerHTML = `
+  const app = document.getElementById('app');
+  app.innerHTML = `
     <div class="view">
       <div class="container-sm">
         <div class="card">
@@ -116,35 +116,35 @@ export async function renderLoginPage() {
     </div>
   `;
 
-    document.getElementById('login-form').addEventListener('submit', handleLogin);
+  document.getElementById('login-form').addEventListener('submit', handleLogin);
 }
 
 async function handleLogin(e) {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+  e.preventDefault();
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
 
-    try {
-        const response = await API.login({ email, password });
-        saveAuthState(response.token, response.user);
+  try {
+    const response = await API.login({ email, password });
+    saveAuthState(response.token, response.user);
 
-        // Redirect based on role
-        if (response.user.role === 'BUSINESS_OWNER') {
-            navigateTo('/business/dashboard');
-        } else if (response.user.role === 'FREELANCER') {
-            navigateTo('/freelancer/dashboard');
-        } else if (response.user.role === 'ADMIN') {
-            navigateTo('/admin/dashboard');
-        }
-    } catch (error) {
-        showError(error.message || 'Login failed');
+    // Redirect based on role
+    if (response.user.role === 'BUSINESS_OWNER') {
+      navigateTo('/business/dashboard');
+    } else if (response.user.role === 'FREELANCER') {
+      navigateTo('/freelancer/dashboard');
+    } else if (response.user.role === 'ADMIN') {
+      navigateTo('/admin/dashboard');
     }
+  } catch (error) {
+    showError(error.message || 'Login failed');
+  }
 }
 
 // ===== Signup Page =====
 export async function renderSignupPage() {
-    const app = document.getElementById('app');
-    app.innerHTML = `
+  const app = document.getElementById('app');
+  app.innerHTML = `
     <div class="view">
       <div class="container-sm">
         <div class="card">
@@ -180,39 +180,39 @@ export async function renderSignupPage() {
     </div>
   `;
 
-    document.getElementById('signup-form').addEventListener('submit', handleSignup);
+  document.getElementById('signup-form').addEventListener('submit', handleSignup);
 }
 
 async function handleSignup(e) {
-    e.preventDefault();
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const role = document.getElementById('role').value;
+  e.preventDefault();
+  const name = document.getElementById('name').value;
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const role = document.getElementById('role').value;
 
-    try {
-        const response = await API.signup({ name, email, password, role });
-        saveAuthState(response.token, response.user);
+  try {
+    const response = await API.signup({ name, email, password, role });
+    saveAuthState(response.token, response.user);
 
-        // Redirect to appropriate dashboard
-        if (role === 'BUSINESS_OWNER') {
-            navigateTo('/business/dashboard');
-        } else {
-            navigateTo('/freelancer/dashboard');
-        }
-    } catch (error) {
-        showError(error.message || 'Signup failed');
+    // Redirect to appropriate dashboard
+    if (role === 'BUSINESS_OWNER') {
+      navigateTo('/business/dashboard');
+    } else {
+      navigateTo('/freelancer/dashboard');
     }
+  } catch (error) {
+    showError(error.message || 'Signup failed');
+  }
 }
 
 // ===== Business Owner Dashboard =====
 export async function renderBusinessDashboard() {
-    const app = document.getElementById('app');
+  const app = document.getElementById('app');
 
-    try {
-        const jobs = await API.getJobs({ owner: state.user.id });
+  try {
+    const jobs = await API.getJobs({ owner: state.user.id });
 
-        app.innerHTML = `
+    app.innerHTML = `
       <div class="view">
         <div class="container">
           <div class="dashboard">
@@ -245,20 +245,20 @@ export async function renderBusinessDashboard() {
         </div>
       </div>
     `;
-    } catch (error) {
-        showError('Failed to load jobs');
-    }
+  } catch (error) {
+    showError('Failed to load jobs');
+  }
 }
 
 function renderJobCard(job) {
-    const statusColors = {
-        OPEN: 'badge-info',
-        IN_PROGRESS: 'badge-warning',
-        COMPLETED: 'badge-success',
-        CANCELLED: 'badge-error'
-    };
+  const statusColors = {
+    OPEN: 'badge-info',
+    IN_PROGRESS: 'badge-warning',
+    COMPLETED: 'badge-success',
+    CANCELLED: 'badge-error'
+  };
 
-    return `
+  return `
     <div class="job-card">
       <div class="job-header">
         <div>
@@ -279,10 +279,10 @@ function renderJobCard(job) {
 
 // ===== Create Job Page =====
 export async function renderCreateJob() {
-    const categories = getAllCategories();
+  const categories = getAllCategories();
 
-    const app = document.getElementById('app');
-    app.innerHTML = `
+  const app = document.getElementById('app');
+  app.innerHTML = `
     <div class="view">
       <div class="container">
         <div class="dashboard">
@@ -356,74 +356,74 @@ export async function renderCreateJob() {
     </div>
   `;
 
-    // Template selection handlers
-    document.getElementById('template-category').addEventListener('change', (e) => {
-        const category = e.target.value;
-        const optionsDiv = document.getElementById('template-options');
+  // Template selection handlers
+  document.getElementById('template-category').addEventListener('change', (e) => {
+    const category = e.target.value;
+    const optionsDiv = document.getElementById('template-options');
 
-        if (!category) {
-            optionsDiv.style.display = 'none';
-            return;
-        }
+    if (!category) {
+      optionsDiv.style.display = 'none';
+      return;
+    }
 
-        const templates = getTemplatesByCategory(category);
-        optionsDiv.style.display = 'grid';
-        optionsDiv.innerHTML = templates.map((template, index) => `
+    const templates = getTemplatesByCategory(category);
+    optionsDiv.style.display = 'grid';
+    optionsDiv.innerHTML = templates.map((template, index) => `
       <div class="card" style="cursor: pointer;" onclick="applyTemplate(${index}, '${category}')">
         <h4>${template.title}</h4>
         <p class="text-muted" style="font-size: 0.875rem;">${template.description.substring(0, 100)}...</p>
         <span class="btn btn-secondary btn-sm mt-sm">Use This Template</span>
       </div>
     `).join('');
-    });
+  });
 
-    // Make applyTemplate globally available
-    window.applyTemplate = (index, category) => {
-        const templates = getTemplatesByCategory(category);
-        const template = templates[index];
+  // Make applyTemplate globally available
+  window.applyTemplate = (index, category) => {
+    const templates = getTemplatesByCategory(category);
+    const template = templates[index];
 
-        document.getElementById('title').value = template.title;
-        document.getElementById('description').value = template.description;
-        document.getElementById('category').value = template.category;
-        document.getElementById('budget_min').value = template.budget_min;
-        document.getElementById('budget_max').value = template.budget_max;
+    document.getElementById('title').value = template.title;
+    document.getElementById('description').value = template.description;
+    document.getElementById('category').value = template.category;
+    document.getElementById('budget_min').value = template.budget_min;
+    document.getElementById('budget_max').value = template.budget_max;
 
-        showSuccess('Template applied! Feel free to customize.');
-    };
+    showSuccess('Template applied! Feel free to customize.');
+  };
 
-    document.getElementById('create-job-form').addEventListener('submit', handleCreateJob);
+  document.getElementById('create-job-form').addEventListener('submit', handleCreateJob);
 }
 
 async function handleCreateJob(e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    const jobData = {
-        title: document.getElementById('title').value,
-        category: document.getElementById('category').value,
-        description: document.getElementById('description').value,
-        budget_min: parseInt(document.getElementById('budget_min').value),
-        budget_max: parseInt(document.getElementById('budget_max').value),
-        deadline: new Date(document.getElementById('deadline').value).toISOString()
-    };
+  const jobData = {
+    title: document.getElementById('title').value,
+    category: document.getElementById('category').value,
+    description: document.getElementById('description').value,
+    budget_min: parseInt(document.getElementById('budget_min').value),
+    budget_max: parseInt(document.getElementById('budget_max').value),
+    deadline: new Date(document.getElementById('deadline').value).toISOString()
+  };
 
-    try {
-        await API.createJob(jobData);
-        showSuccess('Job created successfully!');
-        navigateTo('/business/dashboard');
-    } catch (error) {
-        showError(error.message || 'Failed to create job');
-    }
+  try {
+    await API.createJob(jobData);
+    showSuccess('Job created successfully!');
+    navigateTo('/business/dashboard');
+  } catch (error) {
+    showError(error.message || 'Failed to create job');
+  }
 }
 
 // ===== Job Detail (Business Owner) =====
 export async function renderJobDetail(params) {
-    const app = document.getElementById('app');
+  const app = document.getElementById('app');
 
-    try {
-        const job = await API.getJobById(params.id);
-        const proposals = await API.getProposalsForJob(params.id);
+  try {
+    const job = await API.getJobById(params.id);
+    const proposals = await API.getProposalsForJob(params.id);
 
-        app.innerHTML = `
+    app.innerHTML = `
       <div class="view">
         <div class="container">
           <a href="#/business/dashboard" class="btn btn-secondary mb-lg">← Back to Dashboard</a>
@@ -465,13 +465,13 @@ export async function renderJobDetail(params) {
         </div>
       </div>
     `;
-    } catch (error) {
-        showError('Failed to load job details');
-    }
+  } catch (error) {
+    showError('Failed to load job details');
+  }
 }
 
 function renderProposalCard(proposal, jobId) {
-    return `
+  return `
     <div class="card">
       <div class="flex flex-between mb-md">
         <h4>${proposal.freelancer?.name || 'Freelancer'}</h4>
@@ -488,24 +488,24 @@ function renderProposalCard(proposal, jobId) {
 }
 
 window.selectFreelancer = async (jobId, freelancerId) => {
-    try {
-        await API.selectFreelancer(jobId, freelancerId);
-        showSuccess('Freelancer selected! You can now collaborate on this job.');
-        navigateTo(`/business/job/${jobId}`);
-    } catch (error) {
-        showError('Failed to select freelancer');
-    }
+  try {
+    await API.selectFreelancer(jobId, freelancerId);
+    showSuccess('Freelancer selected! You can now collaborate on this job.');
+    navigateTo(`/business/job/${jobId}`);
+  } catch (error) {
+    showError('Failed to select freelancer');
+  }
 };
 
 // ===== Freelancer Dashboard =====
 export async function renderFreelancerDashboard() {
-    const app = document.getElementById('app');
+  const app = document.getElementById('app');
 
-    try {
-        const proposals = await API.getMyProposals();
-        const activeJobs = proposals.filter(p => p.status === 'ACCEPTED');
+  try {
+    const proposals = await API.getMyProposals();
+    const activeJobs = proposals.filter(p => p.status === 'ACCEPTED');
 
-        app.innerHTML = `
+    app.innerHTML = `
       <div class="view">
         <div class="container">
           <div class="dashboard">
@@ -539,13 +539,13 @@ export async function renderFreelancerDashboard() {
         </div>
       </div>
     `;
-    } catch (error) {
-        showError('Failed to load dashboard');
-    }
+  } catch (error) {
+    showError('Failed to load dashboard');
+  }
 }
 
 function renderActiveJobCard(proposal) {
-    return `
+  return `
     <div class="job-card">
       <h3>${proposal.job?.title || 'Job'}</h3>
       <p>${proposal.job?.description?.substring(0, 150)}...</p>
@@ -558,13 +558,13 @@ function renderActiveJobCard(proposal) {
 }
 
 function renderMyProposalCard(proposal) {
-    const statusColors = {
-        PENDING: 'badge-warning',
-        ACCEPTED: 'badge-success',
-        REJECTED: 'badge-error'
-    };
+  const statusColors = {
+    PENDING: 'badge-warning',
+    ACCEPTED: 'badge-success',
+    REJECTED: 'badge-error'
+  };
 
-    return `
+  return `
     <div class="card mb-md">
       <div class="flex flex-between">
         <div>
@@ -580,12 +580,12 @@ function renderMyProposalCard(proposal) {
 
 // ===== Job Feed (Freelancer) =====
 export async function renderJobFeed() {
-    const app = document.getElementById('app');
+  const app = document.getElementById('app');
 
-    try {
-        const jobs = await API.getJobs({ status: 'OPEN' });
+  try {
+    const jobs = await API.getJobs({ status: 'OPEN' });
 
-        app.innerHTML = `
+    app.innerHTML = `
       <div class="view">
         <div class="container">
           <div class="dashboard">
@@ -611,13 +611,13 @@ export async function renderJobFeed() {
         </div>
       </div>
     `;
-    } catch (error) {
-        showError('Failed to load jobs');
-    }
+  } catch (error) {
+    showError('Failed to load jobs');
+  }
 }
 
 function renderFreelancerJobCard(job) {
-    return `
+  return `
     <div class="job-card">
       <div class="job-header">
         <div>
@@ -638,14 +638,14 @@ function renderFreelancerJobCard(job) {
 
 // ===== Job Detail (Freelancer) =====
 export async function renderJobDetailFreelancer(params) {
-    const app = document.getElementById('app');
+  const app = document.getElementById('app');
 
-    try {
-        const job = await API.getJobById(params.id);
-        const myProposals = await API.getMyProposals();
-        const hasProposed = myProposals.some(p => p.job_id === parseInt(params.id));
+  try {
+    const job = await API.getJobById(params.id);
+    const myProposals = await API.getMyProposals();
+    const hasProposed = myProposals.some(p => p.job_id === parseInt(params.id));
 
-        app.innerHTML = `
+    app.innerHTML = `
       <div class="view">
         <div class="container">
           <a href="#/freelancer/jobs" class="btn btn-secondary mb-lg">← Back to Jobs</a>
@@ -704,41 +704,41 @@ export async function renderJobDetailFreelancer(params) {
       </div>
     `;
 
-        if (!hasProposed) {
-            document.getElementById('proposal-form').addEventListener('submit', (e) => handleSubmitProposal(e, params.id));
-        }
-    } catch (error) {
-        showError('Failed to load job');
+    if (!hasProposed) {
+      document.getElementById('proposal-form').addEventListener('submit', (e) => handleSubmitProposal(e, params.id));
     }
+  } catch (error) {
+    showError('Failed to load job');
+  }
 }
 
 async function handleSubmitProposal(e, jobId) {
-    e.preventDefault();
+  e.preventDefault();
 
-    const proposalData = {
-        job_id: parseInt(jobId),
-        proposed_price: parseInt(document.getElementById('proposed_price').value),
-        message: document.getElementById('proposal_message').value
-    };
+  const proposalData = {
+    job_id: parseInt(jobId),
+    proposed_price: parseInt(document.getElementById('proposed_price').value),
+    message: document.getElementById('proposal_message').value
+  };
 
-    try {
-        await API.createProposal(proposalData);
-        showSuccess('Proposal submitted successfully!');
-        navigateTo('/freelancer/dashboard');
-    } catch (error) {
-        showError(error.message || 'Failed to submit proposal');
-    }
+  try {
+    await API.createProposal(proposalData);
+    showSuccess('Proposal submitted successfully!');
+    navigateTo('/freelancer/dashboard');
+  } catch (error) {
+    showError(error.message || 'Failed to submit proposal');
+  }
 }
 
 // ===== Admin Dashboard =====
 export async function renderAdminDashboard() {
-    const app = document.getElementById('app');
+  const app = document.getElementById('app');
 
-    try {
-        const users = await API.getAllUsers();
-        const jobs = await API.getAllJobs();
+  try {
+    const users = await API.getAllUsers();
+    const jobs = await API.getAllJobs();
 
-        app.innerHTML = `
+    app.innerHTML = `
       <div class="view">
         <div class="container">
           <h1 class="mb-xl">Admin Dashboard</h1>
@@ -775,31 +775,31 @@ export async function renderAdminDashboard() {
         </div>
       </div>
     `;
-    } catch (error) {
-        showError('Failed to load admin data');
-    }
+  } catch (error) {
+    showError('Failed to load admin data');
+  }
 }
 
 window.deactivateUser = async (userId) => {
-    if (!confirm('Are you sure you want to deactivate this user?')) return;
+  if (!confirm('Are you sure you want to deactivate this user?')) return;
 
-    try {
-        await API.deactivateUser(userId);
-        showSuccess('User deactivated');
-        renderAdminDashboard();
-    } catch (error) {
-        showError('Failed to deactivate user');
-    }
+  try {
+    await API.deactivateUser(userId);
+    showSuccess('User deactivated');
+    renderAdminDashboard();
+  } catch (error) {
+    showError('Failed to deactivate user');
+  }
 };
 
 // ===== Profile Page =====
 export async function renderProfile() {
-    const app = document.getElementById('app');
+  const app = document.getElementById('app');
 
-    try {
-        const profile = await API.getProfile();
+  try {
+    const profile = await API.getProfile();
 
-        app.innerHTML = `
+    app.innerHTML = `
       <div class="view">
         <div class="container-sm">
           <div class="card">
@@ -865,48 +865,48 @@ export async function renderProfile() {
       </div>
     `;
 
-        document.getElementById('profile-form').addEventListener('submit', handleUpdateProfile);
-    } catch (error) {
-        showError('Failed to load profile');
-    }
+    document.getElementById('profile-form').addEventListener('submit', handleUpdateProfile);
+  } catch (error) {
+    showError('Failed to load profile');
+  }
 }
 
 async function handleUpdateProfile(e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    let profileData = {};
+  let profileData = {};
 
-    if (state.user.role === 'BUSINESS_OWNER') {
-        profileData = {
-            business_name: document.getElementById('business_name').value,
-            website: document.getElementById('website').value,
-            location: document.getElementById('location').value
-        };
-    } else if (state.user.role === 'FREELANCER') {
-        profileData = {
-            niche: document.getElementById('niche').value,
-            skills: document.getElementById('skills').value,
-            bio: document.getElementById('bio').value
-        };
-    }
+  if (state.user.role === 'BUSINESS_OWNER') {
+    profileData = {
+      business_name: document.getElementById('business_name').value,
+      website: document.getElementById('website').value,
+      location: document.getElementById('location').value
+    };
+  } else if (state.user.role === 'FREELANCER') {
+    profileData = {
+      niche: document.getElementById('niche').value,
+      skills: document.getElementById('skills').value,
+      bio: document.getElementById('bio').value
+    };
+  }
 
-    try {
-        await API.updateProfile(profileData);
-        showSuccess('Profile updated successfully!');
-    } catch (error) {
-        showError(error.message || 'Failed to update profile');
-    }
+  try {
+    await API.updateProfile(profileData);
+    showSuccess('Profile updated successfully!');
+  } catch (error) {
+    showError(error.message || 'Failed to update profile');
+  }
 }
 
 // ===== Messages Page =====
 export async function renderMessages(params) {
-    const app = document.getElementById('app');
+  const app = document.getElementById('app');
 
-    try {
-        const job = await API.getJobById(params.jobId);
-        const messages = await API.getMessagesForJob(params.jobId);
+  try {
+    const job = await API.getJobById(params.jobId);
+    const messages = await API.getMessagesForJob(params.jobId);
 
-        app.innerHTML = `
+    app.innerHTML = `
       <div class="view">
         <div class="container-sm">
           <a href="${state.user.role === 'BUSINESS_OWNER' ? '#/business/job/' + params.jobId : '#/freelancer/dashboard'}" 
@@ -939,26 +939,164 @@ export async function renderMessages(params) {
       </div>
     `;
 
-        document.getElementById('message-form').addEventListener('submit', (e) => handleSendMessage(e, params.jobId));
+    document.getElementById('message-form').addEventListener('submit', (e) => handleSendMessage(e, params.jobId));
 
-        // Scroll to bottom of messages
-        const chatMessages = document.getElementById('chat-messages');
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    } catch (error) {
-        showError('Failed to load messages');
-    }
+    // Scroll to bottom of messages
+    const chatMessages = document.getElementById('chat-messages');
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  } catch (error) {
+    showError('Failed to load messages');
+  }
 }
 
 async function handleSendMessage(e, jobId) {
-    e.preventDefault();
+  e.preventDefault();
 
-    const text = document.getElementById('message-text').value;
+  const text = document.getElementById('message-text').value;
 
-    try {
-        await API.sendMessage({ job_id: parseInt(jobId), text });
-        document.getElementById('message-text').value = '';
-        renderMessages({ jobId });
-    } catch (error) {
-        showError('Failed to send message');
-    }
+  try {
+    await API.sendMessage({ job_id: parseInt(jobId), text });
+    document.getElementById('message-text').value = '';
+    renderMessages({ jobId });
+  } catch (error) {
+    showError('Failed to send message');
+  }
+}
+
+// ===== Pricing Page =====
+export async function renderPricingPage() {
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="view">
+      <div class="container">
+        <div class="hero" style="padding: var(--space-3xl) 0;">
+          <h1 class="hero-title" style="font-size: 3.5rem; margin-bottom: var(--space-md);">
+            Simple, Transparent Pricing
+          </h1>
+          <p class="hero-subtitle" style="margin-bottom: var(--space-3xl);">
+            Start free for 14 days. Upgrade as you grow. No hidden fees.
+          </p>
+        </div>
+
+        <div class="pricing-grid">
+          <!-- Free Trial -->
+          <div class="pricing-card pricing-card-free">
+            <div class="pricing-badge">14 Days Free</div>
+            <h3 class="pricing-title">Trial</h3>
+            <div class="pricing-amount">
+              <span class="pricing-currency">£</span>
+              <span class="pricing-value">0</span>
+            </div>
+            <p class="pricing-period">for 14 days</p>
+            <p class="pricing-description">Perfect for testing the waters and experiencing FlowPartner</p>
+            
+            <ul class="pricing-features">
+              <li><i data-lucide="check"></i> Post up to 2 jobs</li>
+              <li><i data-lucide="check"></i> Access to vetted freelancers</li>
+              <li><i data-lucide="check"></i> Basic messaging</li>
+              <li><i data-lucide="check"></i> AI job templates</li>
+              <li><i data-lucide="check"></i> 5% platform fee</li>
+            </ul>
+            
+            <a href="#/signup" class="btn btn-secondary btn-block btn-lg pricing-cta">
+              Start Free Trial
+            </a>
+          </div>
+
+          <!-- Starter Plan -->
+          <div class="pricing-card pricing-card-starter">
+            <div class="pricing-badge pricing-badge-popular">Most Popular</div>
+            <h3 class="pricing-title">Starter</h3>
+            <div class="pricing-amount">
+              <span class="pricing-currency">£</span>
+              <span class="pricing-value">25</span>
+            </div>
+            <p class="pricing-period">per month</p>
+            <p class="pricing-description">Ideal for small businesses and solopreneurs getting started</p>
+            
+            <ul class="pricing-features">
+              <li><i data-lucide="check"></i> <strong>Unlimited jobs</strong></li>
+              <li><i data-lucide="check"></i> Priority support</li>
+              <li><i data-lucide="check"></i> Advanced messaging & file sharing</li>
+              <li><i data-lucide="check"></i> AI-assisted job matching</li>
+              <li><i data-lucide="check"></i> 3% platform fee</li>
+              <li><i data-lucide="check"></i> Project analytics</li>
+            </ul>
+            
+            <a href="#/signup" class="btn btn-primary btn-block btn-lg pricing-cta">
+              Get Started
+            </a>
+          </div>
+
+          <!-- Growth Plan -->
+          <div class="pricing-card pricing-card-growth">
+            <div class="pricing-badge pricing-badge-premium">Premium</div>
+            <h3 class="pricing-title">Growth</h3>
+            <div class="pricing-amount">
+              <span class="pricing-currency">£</span>
+              <span class="pricing-value">50</span>
+            </div>
+            <p class="pricing-period">per month</p>
+            <p class="pricing-description">For growing teams ready to scale operations</p>
+            
+            <ul class="pricing-features">
+              <li><i data-lucide="check"></i> <strong>Everything in Starter</strong></li>
+              <li><i data-lucide="check"></i> Dedicated account manager</li>
+              <li><i data-lucide="check"></i> Team collaboration tools</li>
+              <li><i data-lucide="check"></i> Advanced AI automation</li>
+              <li><i data-lucide="check"></i> 2% platform fee</li>
+              <li><i data-lucide="check"></i> Custom integrations</li>
+              <li><i data-lucide="check"></i> Quarterly business reviews</li>
+              <li><i data-lucide="check"></i> Priority freelancer matching</li>
+            </ul>
+            
+            <a href="#/signup" class="btn btn-accent btn-block btn-lg pricing-cta">
+              Scale Your Business
+            </a>
+          </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <section class="pricing-faq">
+          <h2 class="text-center mb-xl">Frequently Asked Questions</h2>
+          <div class="grid grid-2">
+            <div class="card">
+              <h4>Can I change plans anytime?</h4>
+              <p class="text-muted">Yes! You can upgrade, downgrade, or cancel your plan at any time. Changes take effect immediately.</p>
+            </div>
+            <div class="card">
+              <h4>What payment methods do you accept?</h4>
+              <p class="text-muted">We accept all major credit cards, debit cards, and PayPal for your convenience.</p>
+            </div>
+            <div class="card">
+              <h4>Is there a setup fee?</h4>
+              <p class="text-muted">No setup fees, no hidden charges. You only pay the monthly subscription and platform fees on completed jobs.</p>
+            </div>
+            <div class="card">
+              <h4>What happens after the free trial?</h4>
+              <p class="text-muted">You can choose to upgrade to a paid plan or continue with limited free access. No credit card required for trial.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="pricing-cta-section">
+          <div class="card text-center" style="background: var(--gradient-primary); border: none;">
+            <h2 style="color: white; margin-bottom: var(--space-md);">Ready to Get Started?</h2>
+            <p style="color: rgba(255,255,255,0.9); font-size: var(--font-size-lg); margin-bottom: var(--space-xl);">
+              Join hundreds of businesses already growing with FlowPartner
+            </p>
+            <a href="#/signup" class="btn btn-secondary btn-lg" style="background: white; color: var(--color-primary);">
+              Start Your Free Trial
+            </a>
+          </div>
+        </section>
+      </div>
+    </div>
+  `;
+
+  // Initialize Lucide icons after rendering
+  if (window.lucide) {
+    lucide.createIcons();
+  }
 }

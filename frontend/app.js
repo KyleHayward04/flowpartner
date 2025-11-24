@@ -223,6 +223,7 @@ function updateNavigation() {
         // Public navigation
         navLinks.innerHTML = `
       <li><a href="#/">Home</a></li>
+      <li><a href="#/pricing">Pricing</a></li>
       <li><a href="#/login">Login</a></li>
       <li><a href="#/signup" class="btn btn-primary btn-sm">Sign Up</a></li>
     `;
@@ -232,6 +233,7 @@ function updateNavigation() {
 // ===== Router =====
 const routes = {
     '/': Views.renderLandingPage,
+    '/pricing': Views.renderPricingPage,
     '/login': Views.renderLoginPage,
     '/signup': Views.renderSignupPage,
     '/business/dashboard': Views.renderBusinessDashboard,
