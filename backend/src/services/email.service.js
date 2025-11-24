@@ -1,60 +1,22 @@
-// Email Service - Handles sending verification and notification emails
-import nodemailer from 'nodemailer';
+// Email Service - Handles sending verification and notification emails using SendGrid Web API
+import sgMail from '@sendgrid/mail';
 import crypto from 'crypto';
 
-// Debug nodemailer import
-console.log('nodemailer type:', typeof nodemailer);
-console.log('nodemailer keys:', Object.keys(nodemailer || {}));
-console.log('createTransporter:', typeof nodemailer?.createTransporter);
-
-// Create reusable transporter
-const createTransporter = () => {
-    if (!process.env.EMAIL_HOST || !process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-        console.error('Missing email env vars', {
-            EMAIL_HOST: process.env.EMAIL_HOST,
-            EMAIL_USER: process.env.EMAIL_USER ? '[set]' : '[missing]',
-        });
-        throw new Error('Email env vars not configured');
+// Initialize SendGrid
+const initializeSendGrid = () => {
+    if (!process.env.SENDGRID_API_KEY && !process.env.EMAIL_PASSWORD) {
+        console.error('Missing SendGrid API key');
+        throw new Error('SENDGRID_API_KEY or EMAIL_PASSWORD environment variable required');
     }
 
-    const port = parseInt(process.env.EMAIL_PORT || '465');
-    const isSSL = port === 465;
-
-    console.log('Creating email transporter:', {
-        host: process.env.EMAIL_HOST,
-        port,
-        secure: isSSL,
-        user: process.env.EMAIL_USER
-    });
-
-    // Try to get the correct createTransport function
-    const createTransport = nodemailer.createTransporter || nodemailer.createTransport || nodemailer.default?.createTransporter;
-
-    if (!createTransport) {
-        console.error('Cannot find createTransporter/createTransport method');
-        throw new Error('Nodemailer not properly loaded');
-    }
-
-    return createTransport({
-        host: process.env.EMAIL_HOST,
-        port: port,
-        secure: isSSL,  // true for 465 (SSL), false for 587 (STARTTLS)
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASSWORD
-        },
-        // Increase timeout for slower connections
-        connectionTimeout: 10000,  // 10 seconds
-        greetingTimeout: 10000,
-        socketTimeout: 10000,
-        // Additional options for better reliability
-        pool: true,
-        maxConnections: 5,
-        maxMessages: 10,
-        rateDelta: 1000,
-        rateLimit: 5
-    });
+    // Use SENDGRID_API_KEY if available, otherwise EMAIL_PASSWORD
+    const apiKey = process.env.SENDGRID_API_KEY || process.env.EMAIL_PASSWORD;
+    sgMail.setApiKey(apiKey);
+    console.log('SendGrid initialized successfully');
 };
+
+// Initialize on module load
+initializeSendGrid();
 
 // Generate verification token
 export const generateVerificationToken = () => {
@@ -63,12 +25,11 @@ export const generateVerificationToken = () => {
 
 // Send email verification
 export const sendVerificationEmail = async (email, name, token) => {
-    const transporter = createTransporter();
     const verificationUrl = `${process.env.FRONTEND_URL}/#/verify-email/${token}`;
 
-    const mailOptions = {
-        from: `"FlowPartner" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
+    const msg = {
         to: email,
+        from: process.env.EMAIL_FROM || 'noreply@flowpartner.xyz',
         subject: 'Verify Your Email - FlowPartner',
         html: `
             <!DOCTYPE html>
@@ -111,25 +72,24 @@ export const sendVerificationEmail = async (email, name, token) => {
     };
 
     try {
-        await transporter.sendMail(mailOptions);
+        await sgMail.send(msg);
         console.log(`Verification email sent to ${email}`);
         return true;
     } catch (error) {
-        console.error('Email sending error:', error);
+        console.error('SendGrid error:', error.response?.body || error.message);
         throw new Error('Failed to send verification email');
     }
 };
 
 // Send welcome email after verification
 export const sendWelcomeEmail = async (email, name, role) => {
-    const transporter = createTransporter();
     const dashboardUrl = role === 'BUSINESS_OWNER'
         ? `${process.env.FRONTEND_URL}/#/business/dashboard`
         : `${process.env.FRONTEND_URL}/#/freelancer/dashboard`;
 
-    const mailOptions = {
-        from: `"FlowPartner" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
+    const msg = {
         to: email,
+        from: process.env.EMAIL_FROM || 'noreply@flowpartner.xyz',
         subject: 'Welcome to FlowPartner - Email Verified!',
         html: `
             <!DOCTYPE html>
@@ -181,10 +141,10 @@ export const sendWelcomeEmail = async (email, name, role) => {
     };
 
     try {
-        await transporter.sendMail(mailOptions);
+        await sgMail.send(msg);
         console.log(`Welcome email sent to ${email}`);
     } catch (error) {
-        console.error('Welcome email error:', error);
+        console.error('Welcome email error:', error.response?.body || error.message);
         // Don't throw - welcome email is not critical
     }
 };
