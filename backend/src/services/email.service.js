@@ -1,5 +1,6 @@
 // Email Service - Handles sending verification and notification emails
-import nodemailer from 'nodemailer';
+import pkg from 'nodemailer';
+const nodemailer = pkg.default || pkg;
 import crypto from 'crypto';
 
 // Create reusable transporter
