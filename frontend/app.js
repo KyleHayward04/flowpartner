@@ -2,7 +2,7 @@
 import * as Views from './views.js';
 
 // API Configuration
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = 'https://flowpartner-backend.onrender.com/api';
 
 // Application State
 let state = {
