@@ -1,0 +1,140 @@
+// FlowPartner Database Schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  BUSINESS_OWNER
+  FREELANCER
+  ADMIN
+}
+
+enum JobStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum ProposalStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  name          String
+  email         String    @unique
+  password_hash String
+  role          Role
+  active        Boolean   @default(true)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  profile           Profile?
+  jobs_owned        Job[]           @relation("JobOwner")
+  jobs_as_freelancer Job[]          @relation("JobFreelancer")
+  proposals         Proposal[]
+  messages_sent     Message[]
+  reviews_given     Review[]        @relation("ReviewFrom")
+  reviews_received  Review[]        @relation("ReviewTo")
+
+  @@map("users")
+}
+
+model Profile {
+  id            Int      @id @default(autoincrement())
+  user_id       Int      @unique
+  
+  // Business Owner fields
+  business_name String?
+  website       String?
+  location      String?
+  
+  // Freelancer fields
+  niche         String?
+  skills        String?
+  bio           String?
+  
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model Job {
+  id                     Int       @id @default(autoincrement())
+  owner_id               Int
+  title                  String
+  description            String
+  category               String
+  budget_min             Int
+  budget_max             Int
+  deadline               DateTime
+  status                 JobStatus @default(OPEN)
+  chosen_freelancer_id   Int?
+  created_at             DateTime  @default(now())
+  updated_at             DateTime  @updatedAt
+
+  owner              User       @relation("JobOwner", fields: [owner_id], references: [id], onDelete: Cascade)
+  chosen_freelancer  User?      @relation("JobFreelancer", fields: [chosen_freelancer_id], references: [id])
+  proposals          Proposal[]
+  messages           Message[]
+  reviews            Review[]
+
+  @@map("jobs")
+}
+
+model Proposal {
+  id             Int            @id @default(autoincrement())
+  job_id         Int
+  freelancer_id  Int
+  message        String
+  proposed_price Int
+  status         ProposalStatus @default(PENDING)
+  created_at     DateTime       @default(now())
+  updated_at     DateTime       @updatedAt
+
+  job        Job  @relation(fields: [job_id], references: [id], onDelete: Cascade)
+  freelancer User @relation(fields: [freelancer_id], references: [id], onDelete: Cascade)
+
+  @@unique([job_id, freelancer_id])
+  @@map("proposals")
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  job_id     Int
+  sender_id  Int
+  text       String
+  created_at DateTime @default(now())
+
+  job    Job  @relation(fields: [job_id], references: [id], onDelete: Cascade)
+  sender User @relation(fields: [sender_id], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+model Review {
+  id           Int      @id @default(autoincrement())
+  job_id       Int
+  from_user_id Int
+  to_user_id   Int
+  rating       Int
+  comment      String?
+  created_at   DateTime @default(now())
+
+  job       Job  @relation(fields: [job_id], references: [id], onDelete: Cascade)
+  from_user User @relation("ReviewFrom", fields: [from_user_id], references: [id], onDelete: Cascade)
+  to_user   User @relation("ReviewTo", fields: [to_user_id], references: [id], onDelete: Cascade)
+
+  @@map("reviews")
+}
