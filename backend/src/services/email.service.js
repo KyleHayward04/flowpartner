@@ -1,7 +1,11 @@
 // Email Service - Handles sending verification and notification emails
-import pkg from 'nodemailer';
-const nodemailer = pkg.default || pkg;
+import nodemailer from 'nodemailer';
 import crypto from 'crypto';
+
+// Debug nodemailer import
+console.log('nodemailer type:', typeof nodemailer);
+console.log('nodemailer keys:', Object.keys(nodemailer || {}));
+console.log('createTransporter:', typeof nodemailer?.createTransporter);
 
 // Create reusable transporter
 const createTransporter = () => {
@@ -23,7 +27,15 @@ const createTransporter = () => {
         user: process.env.EMAIL_USER
     });
 
-    return nodemailer.createTransporter({
+    // Try to get the correct createTransport function
+    const createTransport = nodemailer.createTransporter || nodemailer.createTransport || nodemailer.default?.createTransporter;
+
+    if (!createTransport) {
+        console.error('Cannot find createTransporter/createTransport method');
+        throw new Error('Nodemailer not properly loaded');
+    }
+
+    return createTransport({
         host: process.env.EMAIL_HOST,
         port: port,
         secure: isSSL,  // true for 465 (SSL), false for 587 (STARTTLS)
