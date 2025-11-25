@@ -30,6 +30,26 @@ function showSuccess(message) {
 // ===== Landing Page =====
 export async function renderLandingPage() {
   const app = document.getElementById('app');
+
+  // Determine CTA buttons based on authentication status
+  let ctaButtons = '';
+  if (state.user) {
+    // User is logged in - redirect to their dashboard
+    const dashboardLink = state.user.role === 'BUSINESS_OWNER' ? '#/business/dashboard' :
+      state.user.role === 'FREELANCER' ? '#/freelancer/dashboard' :
+        '#/admin/dashboard';
+
+    ctaButtons = `
+      <a href="${dashboardLink}" class="btn btn-primary btn-lg">Go to Dashboard</a>
+    `;
+  } else {
+    // User is not logged in - show signup/login
+    ctaButtons = `
+      <a href="#/signup" class="btn btn-primary btn-lg">Get Started Free</a>
+      <a href="#/login" class="btn btn-secondary btn-lg">Sign In</a>
+    `;
+  }
+
   app.innerHTML = `
     <div class="hero">
       <div class="container">
@@ -39,8 +59,7 @@ export async function renderLandingPage() {
           automations, and more. Get the help you need to scale your business.
         </p>
         <div class="hero-cta">
-          <a href="#/signup" class="btn btn-primary btn-lg">Get Started Free</a>
-          <a href="#/login" class="btn btn-secondary btn-lg">Sign In</a>
+          ${ctaButtons}
         </div>
       </div>
     </div>
