@@ -226,9 +226,13 @@ function updateNavigation() {
             state.user.role === 'FREELANCER' ? '#/freelancer/dashboard' :
                 '#/admin/dashboard';
 
+        const profileLink = state.user.role === 'BUSINESS_OWNER' ? '#/business/profile' :
+            state.user.role === 'FREELANCER' ? '#/freelancer/profile' :
+                '#/admin/profile';
+
         navLinks.innerHTML = `
       <li><a href="${dashboardLink}">Dashboard</a></li>
-      <li><a href="#/profile">Profile</a></li>
+      <li><a href="${profileLink}">Profile</a></li>
       <li><a href="#/" onclick="logout()" class="btn btn-secondary btn-sm">Logout</a></li>
     `;
     } else {
@@ -253,11 +257,13 @@ const routes = {
     '/business/dashboard': Views.renderBusinessDashboard,
     '/business/create-job': Views.renderCreateJob,
     '/business/job/:id': Views.renderJobDetail,
+    '/business/profile': Views.renderProfile,
     '/freelancer/dashboard': Views.renderFreelancerDashboard,
     '/freelancer/jobs': Views.renderJobFeed,
     '/freelancer/job/:id': Views.renderJobDetailFreelancer,
+    '/freelancer/profile': Views.renderProfile,
     '/admin/dashboard': Views.renderAdminDashboard,
-    '/profile': Views.renderProfile,
+    '/admin/profile': Views.renderProfile,
     '/messages/:jobId': Views.renderMessages
 };
 

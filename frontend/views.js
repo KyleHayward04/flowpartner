@@ -241,7 +241,7 @@ export async function renderBusinessDashboard() {
               <ul class="sidebar-nav">
                 <li><a href="#/business/dashboard" class="active">My Jobs</a></li>
                 <li><a href="#/business/create-job">Create Job</a></li>
-                <li><a href="#/profile">Profile</a></li>
+                <li><a href="#/business/profile">Profile</a></li>
               </ul>
             </aside>
             
@@ -311,7 +311,7 @@ export async function renderCreateJob() {
             <ul class="sidebar-nav">
               <li><a href="#/business/dashboard">My Jobs</a></li>
               <li><a href="#/business/create-job" class="active">Create Job</a></li>
-              <li><a href="#/profile">Profile</a></li>
+              <li><a href="#/business/profile">Profile</a></li>
             </ul>
           </aside>
           
@@ -534,7 +534,7 @@ export async function renderFreelancerDashboard() {
               <ul class="sidebar-nav">
                 <li><a href="#/freelancer/dashboard" class="active">My Work</a></li>
                 <li><a href="#/freelancer/jobs">Browse Jobs</a></li>
-                <li><a href="#/profile">Profile</a></li>
+                <li><a href="#/freelancer/profile">Profile</a></li>
               </ul>
             </aside>
             
@@ -614,7 +614,7 @@ export async function renderJobFeed() {
               <ul class="sidebar-nav">
                 <li><a href="#/freelancer/dashboard">My Work</a></li>
                 <li><a href="#/freelancer/jobs" class="active">Browse Jobs</a></li>
-                <li><a href="#/profile">Profile</a></li>
+                <li><a href="#/freelancer/profile">Profile</a></li>
               </ul>
             </aside>
             
@@ -819,11 +819,46 @@ export async function renderProfile() {
   try {
     const profile = await API.getProfile();
 
+    // Determine sidebar navigation based on role
+    let sidebarNav = '';
+    let dashboardTitle = '';
+
+    if (state.user.role === 'BUSINESS_OWNER') {
+      dashboardTitle = 'Business Dashboard';
+      sidebarNav = `
+        <li><a href="#/business/dashboard">My Jobs</a></li>
+        <li><a href="#/business/create-job">Create Job</a></li>
+        <li><a href="#/business/profile" class="active">Profile</a></li>
+      `;
+    } else if (state.user.role === 'FREELANCER') {
+      dashboardTitle = 'Freelancer Dashboard';
+      sidebarNav = `
+        <li><a href="#/freelancer/dashboard">My Work</a></li>
+        <li><a href="#/freelancer/jobs">Browse Jobs</a></li>
+        <li><a href="#/freelancer/profile" class="active">Profile</a></li>
+      `;
+    } else if (state.user.role === 'ADMIN') {
+      dashboardTitle = 'Admin Dashboard';
+      sidebarNav = `
+        <li><a href="#/admin/dashboard">Dashboard</a></li>
+        <li><a href="#/admin/profile" class="active">Profile</a></li>
+      `;
+    }
+
     app.innerHTML = `
       <div class="view">
-        <div class="container-sm">
-          <div class="card">
-            <h1 class="mb-lg">My Profile</h1>
+        <div class="container">
+          <div class="dashboard">
+            <aside class="dashboard-sidebar">
+              <h3 class="mb-lg">${dashboardTitle}</h3>
+              <ul class="sidebar-nav">
+                ${sidebarNav}
+              </ul>
+            </aside>
+            
+            <div class="dashboard-content">
+              <h1 class="mb-lg">My Profile</h1>
+              <div class="card">
             <form id="profile-form">
               <div class="form-group">
                 <label class="form-label">Name</label>
@@ -880,6 +915,8 @@ export async function renderProfile() {
               
               <button type="submit" class="btn btn-primary btn-block">Save Profile</button>
             </form>
+          </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1124,10 +1161,10 @@ export async function renderPricingPage() {
 
 // ===== Email Verification Sent Page =====
 export async function renderVerificationSent() {
-    const app = document.getElementById('app');
-    const email = localStorage.getItem('pendingVerificationEmail') || '';
+  const app = document.getElementById('app');
+  const email = localStorage.getItem('pendingVerificationEmail') || '';
 
-    app.innerHTML = `
+  app.innerHTML = `
     <div class="view">
       <div class="container-sm">
         <div class="card text-center">
@@ -1158,24 +1195,24 @@ export async function renderVerificationSent() {
     </div>
   `;
 
-    // Make resend function globally available
-    window.resendVerification = async () => {
-        try {
-            await API.resendVerification(email);
-            showSuccess('Verification email sent! Please check your inbox.');
-        } catch (error) {
-            showError(error.message || 'Failed to resend email');
-        }
-    };
+  // Make resend function globally available
+  window.resendVerification = async () => {
+    try {
+      await API.resendVerification(email);
+      showSuccess('Verification email sent! Please check your inbox.');
+    } catch (error) {
+      showError(error.message || 'Failed to resend email');
+    }
+  };
 }
 
 // ===== Email Verification Page =====
 export async function renderEmailVerification(params) {
-    const app = document.getElementById('app');
-    const { token } = params;
+  const app = document.getElementById('app');
+  const { token } = params;
 
-    // Show loading state
-    app.innerHTML = `
+  // Show loading state
+  app.innerHTML = `
     <div class="view">
       <div class="container-sm">
         <div class="card text-center">
@@ -1186,11 +1223,11 @@ export async function renderEmailVerification(params) {
     </div>
   `;
 
-    try {
-        const response = await API.verifyEmail(token);
-        
-        // Success!
-        app.innerHTML = `
+  try {
+    const response = await API.verifyEmail(token);
+
+    // Success!
+    app.innerHTML = `
       <div class="view">
         <div class="container-sm">
           <div class="card text-center">
@@ -1214,15 +1251,15 @@ export async function renderEmailVerification(params) {
       </div>
     `;
 
-        //Clean up pending email
-        localStorage.removeItem('pendingVerificationEmail');
+    //Clean up pending email
+    localStorage.removeItem('pendingVerificationEmail');
 
-    } catch (error) {
-        // Error
-        const isExpired = error.message && error.message.includes('expired');
-        const email = localStorage.getItem('pendingVerificationEmail') || '';
+  } catch (error) {
+    // Error
+    const isExpired = error.message && error.message.includes('expired');
+    const email = localStorage.getItem('pendingVerificationEmail') || '';
 
-        app.innerHTML = `
+    app.innerHTML = `
       <div class="view">
         <div class="container-sm">
           <div class="card text-center">
@@ -1251,17 +1288,17 @@ export async function renderEmailVerification(params) {
       </div>
     `;
 
-        // Make resend function globally available if needed
-        if (isExpired && email) {
-            window.resendVerification = async () => {
-                try {
-                    await API.resendVerification(email);
-                    showSuccess('Verification email sent! Please check your inbox.');
-                    navigateTo('/verification-sent');
-                } catch (err) {
-                    showError(err.message || 'Failed to resend email');
-                }
-            };
+    // Make resend function globally available if needed
+    if (isExpired && email) {
+      window.resendVerification = async () => {
+        try {
+          await API.resendVerification(email);
+          showSuccess('Verification email sent! Please check your inbox.');
+          navigateTo('/verification-sent');
+        } catch (err) {
+          showError(err.message || 'Failed to resend email');
         }
+      };
     }
+  }
 }
