@@ -258,12 +258,15 @@ const routes = {
     '/business/create-job': Views.renderCreateJob,
     '/business/job/:id': Views.renderJobDetail,
     '/business/profile': Views.renderProfile,
+    '/business/subscription': Views.renderSubscription,
     '/freelancer/dashboard': Views.renderFreelancerDashboard,
     '/freelancer/jobs': Views.renderJobFeed,
     '/freelancer/job/:id': Views.renderJobDetailFreelancer,
     '/freelancer/profile': Views.renderProfile,
+    '/freelancer/subscription': Views.renderSubscription,
     '/admin/dashboard': Views.renderAdminDashboard,
     '/admin/profile': Views.renderProfile,
+    '/admin/subscription': Views.renderSubscription,
     '/messages/:jobId': Views.renderMessages
 };
 

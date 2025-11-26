@@ -261,7 +261,6 @@ export async function renderBusinessDashboard() {
                 <li><a href="#/business/dashboard" class="active">My Jobs</a></li>
                 <li><a href="#/business/create-job">Create Job</a></li>
                 <li><a href="#/business/profile">Profile</a></li>
-                <li><a href="#/business/subscription">Subscription</a></li>
               </ul>
             </aside>
             
@@ -332,7 +331,6 @@ export async function renderCreateJob() {
               <li><a href="#/business/dashboard">My Jobs</a></li>
               <li><a href="#/business/create-job" class="active">Create Job</a></li>
               <li><a href="#/business/profile">Profile</a></li>
-              <li><a href="#/business/subscription">Subscription</a></li>
             </ul>
           </aside>
           
@@ -556,7 +554,6 @@ export async function renderFreelancerDashboard() {
                 <li><a href="#/freelancer/dashboard" class="active">My Work</a></li>
                 <li><a href="#/freelancer/jobs">Browse Jobs</a></li>
                 <li><a href="#/freelancer/profile">Profile</a></li>
-                <li><a href="#/freelancer/subscription">Subscription</a></li>
               </ul>
             </aside>
             
@@ -637,7 +634,6 @@ export async function renderJobFeed() {
                 <li><a href="#/freelancer/dashboard">My Work</a></li>
                 <li><a href="#/freelancer/jobs" class="active">Browse Jobs</a></li>
                 <li><a href="#/freelancer/profile">Profile</a></li>
-                <li><a href="#/freelancer/subscription">Subscription</a></li>
               </ul>
             </aside>
             
@@ -852,7 +848,6 @@ export async function renderProfile() {
         <li><a href="#/business/dashboard">My Jobs</a></li>
         <li><a href="#/business/create-job">Create Job</a></li>
         <li><a href="#/business/profile" class="active">Profile</a></li>
-        <li><a href="#/business/subscription">Subscription</a></li>
       `;
     } else if (state.user.role === 'FREELANCER') {
       dashboardTitle = 'Freelancer Dashboard';
@@ -860,14 +855,12 @@ export async function renderProfile() {
         <li><a href="#/freelancer/dashboard">My Work</a></li>
         <li><a href="#/freelancer/jobs">Browse Jobs</a></li>
         <li><a href="#/freelancer/profile" class="active">Profile</a></li>
-        <li><a href="#/freelancer/subscription">Subscription</a></li>
       `;
     } else if (state.user.role === 'ADMIN') {
       dashboardTitle = 'Admin Dashboard';
       sidebarNav = `
         <li><a href="#/admin/dashboard">Dashboard</a></li>
         <li><a href="#/admin/profile" class="active">Profile</a></li>
-        <li><a href="#/admin/subscription">Subscription</a></li>
       `;
     }
 
@@ -979,261 +972,6 @@ async function handleUpdateProfile(e) {
   } catch (error) {
     showError(error.message || 'Failed to update profile');
   }
-}
-
-// ===== Subscription Page =====
-export async function renderSubscription() {
-  const app = document.getElementById('app');
-
-  // Mock current subscription data (will be replaced with backend data later)
-  const currentPlan = {
-    name: 'Trial',
-    price: 0,
-    status: 'active',
-    daysRemaining: 14,
-    platformFee: 5
-  };
-
-  // Determine sidebar navigation based on role
-  let sidebarNav = '';
-  let dashboardTitle = '';
-  let dashboardLink = '';
-
-  if (state.user.role === 'BUSINESS_OWNER') {
-    dashboardTitle = 'Business Dashboard';
-    dashboardLink = '#/business/dashboard';
-    sidebarNav = `
-      <li><a href="#/business/dashboard">My Jobs</a></li>
-      <li><a href="#/business/create-job">Create Job</a></li>
-      <li><a href="#/business/profile">Profile</a></li>
-      <li><a href="#/business/subscription" class="active">Subscription</a></li>
-    `;
-  } else if (state.user.role === 'FREELANCER') {
-    dashboardTitle = 'Freelancer Dashboard';
-    dashboardLink = '#/freelancer/dashboard';
-    sidebarNav = `
-      <li><a href="#/freelancer/dashboard">My Work</a></li>
-      <li><a href="#/freelancer/jobs">Browse Jobs</a></li>
-      <li><a href="#/freelancer/profile">Profile</a></li>
-      <li><a href="#/freelancer/subscription" class="active">Subscription</a></li>
-    `;
-  } else if (state.user.role === 'ADMIN') {
-    dashboardTitle = 'Admin Dashboard';
-    dashboardLink = '#/admin/dashboard';
-    sidebarNav = `
-      <li><a href="#/admin/dashboard">Dashboard</a></li>
-      <li><a href="#/admin/profile">Profile</a></li>
-      <li><a href="#/admin/subscription" class="active">Subscription</a></li>
-    `;
-  }
-
-  app.innerHTML = `
-    <div class="view">
-      <div class="container">
-        <div class="dashboard">
-          <aside class="dashboard-sidebar">
-            <h3 class="mb-lg">${dashboardTitle}</h3>
-            <ul class="sidebar-nav">
-              ${sidebarNav}
-            </ul>
-          </aside>
-          
-          <div class="dashboard-content">
-            <h1 class="mb-lg">Subscription</h1>
-            
-            <!-- Current Plan -->
-            <div class="card mb-xl">
-              <h2 class="mb-md">Current Plan</h2>
-              <div style="background: var(--color-bg-elevated); padding: var(--space-lg); border-radius: var(--radius-lg); margin-bottom: var(--space-lg);">
-                <div class="flex flex-between mb-md">
-                  <div>
-                    <h3 style="margin: 0;">${currentPlan.name}</h3>
-                    <p class="text-muted" style="margin: var(--space-xs) 0 0;">
-                      ${currentPlan.name === 'Trial' ? `${currentPlan.daysRemaining} days remaining` : 'Active subscription'}
-                    </p>
-                  </div>
-                  <div style="text-align: right;">
-                    <div style="font-size: var(--font-size-2xl); font-weight: bold; color: var(--color-primary);">
-                      £${currentPlan.price}
-                    </div>
-                    <p class="text-muted" style="margin: var(--space-xs) 0 0;">
-                      ${currentPlan.name === 'Trial' ? 'for 14 days' : 'per month'}
-                    </p>
-                  </div>
-                </div>
-                <div class="flex gap-sm" style="padding-top: var(--space-md); border-top: 1px solid var(--color-border);">
-                  <span class="badge badge-success">${currentPlan.status}</span>
-                  <span class="text-muted">•</span>
-                  <span class="text-muted">${currentPlan.platformFee}% platform fee</span>
-                </div>
-              </div>
-              
-              ${currentPlan.name === 'Trial' ? `
-                <div style="background: var(--gradient-primary); padding: var(--space-lg); border-radius: var(--radius-lg); color: white;">
-                  <p style="margin: 0 0 var(--space-md);">
-                    <strong>Trial ends soon!</strong> Upgrade to continue enjoying unlimited features.
-                  </p>
-                  <a href="#" onclick="scrollToPricing()" class="btn btn-secondary">
-                    View Pricing Plans
-                  </a>
-                </div>
-              ` : ''}
-            </div>
-            
-            <!-- Pricing Plans -->
-            <h2 class="mb-lg">Available Plans</h2>
-            <div class="pricing-grid" style="margin-bottom: var(--space-xl);">
-              <!-- Trial Plan -->
-              <div class="pricing-card pricing-card-free">
-                <div class="pricing-badge">14 Days Free</div>
-                <h3 class="pricing-title">Trial</h3>
-                <div class="pricing-amount">
-                  <span class="pricing-currency">£</span>
-                  <span class="pricing-value">0</span>
-                </div>
-                <p class="pricing-period">for 14 days</p>
-                <p class="pricing-description">Perfect for testing the waters</p>
-                
-                <ul class="pricing-features">
-                  <li><i data-lucide="check"></i> Post up to 2 jobs</li>
-                  <li><i data-lucide="check"></i> Access to vetted freelancers</li>
-                  <li><i data-lucide="check"></i> Basic messaging</li>
-                  <li><i data-lucide="check"></i> AI job templates</li>
-                  <li><i data-lucide="check"></i> 5% platform fee</li>
-                </ul>
-                
-                ${currentPlan.name === 'Trial' ? `
-                  <button class="btn btn-secondary btn-block btn-lg pricing-cta" disabled>
-                    Current Plan
-                  </button>
-                ` : `
-                  <button class="btn btn-secondary btn-block btn-lg pricing-cta" onclick="alert('Trial period has ended. Please upgrade to a paid plan.')">
-                    Trial Expired
-                  </button>
-                `}
-              </div>
-
-              <!-- Starter Plan -->
-              <div class="pricing-card pricing-card-starter">
-                <div class="pricing-badge pricing-badge-popular">Most Popular</div>
-                <h3 class="pricing-title">Starter</h3>
-                <div class="pricing-amount">
-                  <span class="pricing-currency">£</span>
-                  <span class="pricing-value">25</span>
-                </div>
-                <p class="pricing-period">per month</p>
-                <p class="pricing-description">Ideal for small businesses</p>
-                
-                <ul class="pricing-features">
-                  <li><i data-lucide="check"></i> <strong>Unlimited jobs</strong></li>
-                  <li><i data-lucide="check"></i> Priority support</li>
-                  <li><i data-lucide="check"></i> Advanced messaging</li>
-                  <li><i data-lucide="check"></i> AI-assisted matching</li>
-                  <li><i data-lucide="check"></i> 3% platform fee</li>
-                  <li><i data-lucide="check"></i> Project analytics</li>
-                </ul>
-                
-                ${currentPlan.name === 'Starter' ? `
-                  <button class="btn btn-primary btn-block btn-lg pricing-cta" disabled>
-                    Current Plan
-                  </button>
-                ` : `
-                  <button class="btn btn-primary btn-block btn-lg pricing-cta" onclick="alert('Subscription backend coming soon! This will upgrade you to Starter plan.')">
-                    ${currentPlan.price > 25 ? 'Downgrade' : 'Upgrade'} to Starter
-                  </button>
-                `}
-              </div>
-
-              <!-- Growth Plan -->
-              <div class="pricing-card pricing-card-growth">
-                <div class="pricing-badge pricing-badge-premium">Premium</div>
-                <h3 class="pricing-title">Growth</h3>
-                <div class="pricing-amount">
-                  <span class="pricing-currency">£</span>
-                  <span class="pricing-value">50</span>
-                </div>
-                <p class="pricing-period">per month</p>
-                <p class="pricing-description">For growing teams</p>
-                
-                <ul class="pricing-features">
-                  <li><i data-lucide="check"></i> <strong>Everything in Starter</strong></li>
-                  <li><i data-lucide="check"></i> Dedicated account manager</li>
-                  <li><i data-lucide="check"></i> Team collaboration tools</li>
-                  <li><i data-lucide="check"></i> Advanced AI automation</li>
-                  <li><i data-lucide="check"></i> 2% platform fee</li>
-                  <li><i data-lucide="check"></i> Custom integrations</li>
-                  <li><i data-lucide="check"></i> Quarterly reviews</li>
-                  <li><i data-lucide="check"></i> Priority matching</li>
-                </ul>
-                
-                ${currentPlan.name === 'Growth' ? `
-                  <button class="btn btn-accent btn-block btn-lg pricing-cta" disabled>
-                    Current Plan
-                  </button>
-                ` : `
-                  <button class="btn btn-accent btn-block btn-lg pricing-cta" onclick="alert('Subscription backend coming soon! This will upgrade you to Growth plan.')">
-                    ${currentPlan.price > 50 ? 'Downgrade' : 'Upgrade'} to Growth
-                  </button>
-                `}
-              </div>
-            </div>
-            
-            <!-- Subscription Settings -->
-            <div class="card">
-              <h2 class="mb-lg">Subscription Settings</h2>
-              
-              <div class="form-group">
-                <label class="form-label">Payment Method</label>
-                <div style="background: var(--color-bg-elevated); padding: var(--space-md); border-radius: var(--radius-md); margin-bottom: var(--space-md);">
-                  <p class="text-muted" style="margin: 0;">
-                    <i data-lucide="credit-card" style="width: 16px; height: 16px;"></i>
-                    Payment integration coming soon
-                  </p>
-                </div>
-              </div>
-              
-              <div class="form-group">
-                <label class="form-label">Billing History</label>
-                <div style="background: var(--color-bg-elevated); padding: var(--space-md); border-radius: var(--radius-md); margin-bottom: var(--space-md);">
-                  <p class="text-muted" style="margin: 0;">
-                    <i data-lucide="file-text" style="width: 16px; height: 16px;"></i>
-                    No billing history available yet
-                  </p>
-                </div>
-              </div>
-              
-              <div class="form-group">
-                <label class="form-label">Actions</label>
-                <div class="flex gap-sm">
-                  <button class="btn btn-secondary" onclick="alert('Backend implementation coming soon!')">
-                    Update Payment Method
-                  </button>
-                  <button class="btn btn-secondary" onclick="alert('Backend implementation coming soon!')">
-                    View Invoices
-                  </button>
-                  ${currentPlan.name !== 'Trial' ? `
-                    <button class="btn btn-error" onclick="if(confirm('Are you sure you want to cancel your subscription?')) alert('Backend implementation coming soon!')">
-                      Cancel Subscription
-                    </button>
-                  ` : ''}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-
-  // Initialize Lucide icons after rendering
-  if (window.lucide) {
-    lucide.createIcons();
-  }
-
-  // Make scroll function globally available
-  window.scrollToPricing = () => {
-    document.querySelector('.pricing-grid').scrollIntoView({ behavior: 'smooth' });
-  };
 }
 
 // ===== Messages Page =====
