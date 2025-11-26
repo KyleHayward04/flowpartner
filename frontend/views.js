@@ -556,7 +556,6 @@ export async function renderFreelancerDashboard() {
                 <li><a href="#/freelancer/dashboard" class="active">My Work</a></li>
                 <li><a href="#/freelancer/jobs">Browse Jobs</a></li>
                 <li><a href="#/freelancer/profile">Profile</a></li>
-                <li><a href="#/freelancer/subscription">Subscription</a></li>
               </ul>
             </aside>
             
@@ -637,7 +636,6 @@ export async function renderJobFeed() {
                 <li><a href="#/freelancer/dashboard">My Work</a></li>
                 <li><a href="#/freelancer/jobs" class="active">Browse Jobs</a></li>
                 <li><a href="#/freelancer/profile">Profile</a></li>
-                <li><a href="#/freelancer/subscription">Subscription</a></li>
               </ul>
             </aside>
             
@@ -860,7 +858,6 @@ export async function renderProfile() {
         <li><a href="#/freelancer/dashboard">My Work</a></li>
         <li><a href="#/freelancer/jobs">Browse Jobs</a></li>
         <li><a href="#/freelancer/profile" class="active">Profile</a></li>
-        <li><a href="#/freelancer/subscription">Subscription</a></li>
       `;
     } else if (state.user.role === 'ADMIN') {
       dashboardTitle = 'Admin Dashboard';

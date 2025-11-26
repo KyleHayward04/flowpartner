@@ -263,7 +263,6 @@ const routes = {
     '/freelancer/jobs': Views.renderJobFeed,
     '/freelancer/job/:id': Views.renderJobDetailFreelancer,
     '/freelancer/profile': Views.renderProfile,
-    '/freelancer/subscription': Views.renderSubscription,
     '/admin/dashboard': Views.renderAdminDashboard,
     '/admin/profile': Views.renderProfile,
     '/admin/subscription': Views.renderSubscription,
