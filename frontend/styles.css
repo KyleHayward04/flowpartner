@@ -1144,6 +1144,7 @@ a:hover {
     transform: rotate(45deg);
     transition: all var(--transition-slow);
     opacity: 0;
+    pointer-events: none;
 }
 
 .card:hover::before {
@@ -1561,9 +1562,12 @@ a:hover {
 
 /* Animations for pricing cards */
 @keyframes float {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: translateY(0);
     }
+
     50% {
         transform: translateY(-10px);
     }
@@ -1648,14 +1652,13 @@ a:hover {
         flex-direction: column;
         text-align: center;
     }
-    
+
     .verification-banner-content {
         flex-direction: column;
         text-align: center;
     }
-    
+
     .verification-banner-text {
         text-align: center;
     }
 }
-
