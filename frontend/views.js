@@ -1073,15 +1073,15 @@ export async function renderSubscription() {
                   <p style="margin: 0 0 var(--space-md);">
                     <strong>Trial ends soon!</strong> Upgrade to continue enjoying unlimited features.
                   </p>
-                  <a href="#" onclick="scrollToPricing()" class="btn btn-secondary">
+                  <button onclick="scrollToPricing()" class="btn btn-secondary">
                     View Pricing Plans
-                  </a>
+                  </button>
                 </div>
               ` : ''}
             </div>
             
             <!-- Pricing Plans -->
-            <h2 class="mb-lg">Available Plans</h2>
+            <h2 id="available-plans" class="mb-lg">Available Plans</h2>
             <div class="pricing-grid" style="margin-bottom: var(--space-xl);">
               <!-- Trial Plan -->
               <div class="pricing-card pricing-card-free">
@@ -1232,7 +1232,10 @@ export async function renderSubscription() {
 
   // Make scroll function globally available
   window.scrollToPricing = () => {
-    document.querySelector('.pricing-grid').scrollIntoView({ behavior: 'smooth' });
+    const element = document.getElementById('available-plans');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 }
 
