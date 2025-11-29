@@ -239,6 +239,8 @@ function updateNavigation() {
         // Public navigation
         navLinks.innerHTML = `
       <li><a href="#/">Home</a></li>
+      <li><a href="#/for-businesses">For Businesses</a></li>
+      <li><a href="#/for-freelancers">For Freelancers</a></li>
       <li><a href="#/pricing">Pricing</a></li>
       <li><a href="#/login">Login</a></li>
       <li><a href="#/signup" class="btn btn-primary btn-sm">Sign Up</a></li>
@@ -246,9 +248,12 @@ function updateNavigation() {
     }
 }
 
+
 // ===== Router =====
 const routes = {
     '/': Views.renderLandingPage,
+    '/for-businesses': Views.renderForBusinessesPage,
+    '/for-freelancers': Views.renderForFreelancersPage,
     '/pricing': Views.renderPricingPage,
     '/login': Views.renderLoginPage,
     '/signup': Views.renderSignupPage,
@@ -270,18 +275,21 @@ const routes = {
 };
 
 function matchRoute(path) {
+    // Strip query parameters from path for route matching
+    const cleanPath = path.split('?')[0];
+
     // Try exact match first
-    if (routes[path]) {
-        return { handler: routes[path], params: {} };
+    if (routes[cleanPath]) {
+        return { handler: routes[cleanPath], params: {} };
     }
 
     // Try parameterized routes
     for (const [pattern, handler] of Object.entries(routes)) {
-        const regex = new RegExp('^' + pattern.replace(/:\w+/g, '([^/]+)') + '$');
-        const match = path.match(regex);
+        const regex = new RegExp('^' + pattern.replace(/:\\w+/g, '([^/]+)') + '$');
+        const match = cleanPath.match(regex);
 
         if (match) {
-            const paramNames = (pattern.match(/:\w+/g) || []).map(p => p.substring(1));
+            const paramNames = (pattern.match(/:\\w+/g) || []).map(p => p.substring(1));
             const params = {};
             paramNames.forEach((name, index) => {
                 params[name] = match[index + 1];

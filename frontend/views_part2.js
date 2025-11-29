@@ -1,136 +1,4 @@
-﻿// FlowPartner - All UI Views
-import { state, API, saveAuthState, navigateTo } from './app.js';
-import { getAllCategories, getTemplatesByCategory } from './ai-templates.js';
-
-// ===== Utility Functions =====
-function formatDate(dateString) {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  });
-}
-
-function formatCurrency(amount) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0
-  }).format(amount);
-}
-
-function showError(message) {
-  alert(message); // Simple for now, can enhance with toast notifications
-}
-
-function showSuccess(message) {
-  alert(message);
-}
-
-// ===== Landing Page =====
-export async function renderLandingPage() {
-  const app = document.getElementById('app');
-
-  // Determine CTA buttons based on authentication status
-  let ctaButtons = '';
-  if (state.user) {
-    // User is logged in - redirect to their dashboard
-    const dashboardLink = state.user.role === 'BUSINESS_OWNER' ? '#/business/dashboard' :
-      state.user.role === 'FREELANCER' ? '#/freelancer/dashboard' :
-        '#/admin/dashboard';
-
-    ctaButtons = `
-      <a href="${dashboardLink}" class="btn btn-primary btn-lg">Go to Dashboard</a>
-    `;
-  } else {
-    // User is not logged in - show signup/login
-    ctaButtons = `
-      <a href="#/signup" class="btn btn-primary btn-lg">Get Started Free</a>
-      <a href="#/login" class="btn btn-secondary btn-lg">Sign In</a>
-    `;
-  }
-
-  app.innerHTML = `
-    <div class="hero">
-      <div class="container">
-        <h1 class="hero-title">Connect. Collaborate. Grow.</h1>
-        <p class="hero-subtitle">
-          FlowPartner connects small business owners with expert freelancers for ads, websites, 
-          automations, and more. Get the help you need to scale your business.
-        </p>
-        <div class="hero-cta">
-          ${ctaButtons}
-        </div>
-      </div>
-    </div>
-
-    <div class="container">
-      <section class="view">
-        <h2 class="text-center mb-xl">How It Works</h2>
-        <div class="grid grid-3">
-          <div class="card">
-            <h3>📝 Post Your Job</h3>
-            <p>Describe what you need help with. Use our AI templates or write your own.</p>
-          </div>
-          <div class="card">
-            <h3>👥 Review Proposals</h3>
-            <p>Vetted freelancers apply to your job. Compare proposals and choose the best fit.</p>
-          </div>
-          <div class="card">
-            <h3>✅ Get It Done</h3>
-            <p>Collaborate with your freelancer, track progress, and pay when satisfied.</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="view">
-        <h2 class="text-center mb-xl">For Business Owners</h2>
-        <div class="grid grid-2">
-          <div class="card">
-            <h4>🎯 Facebook & Google Ads</h4>
-            <p>Get expert help setting up and managing your ad campaigns.</p>
-          </div>
-          <div class="card">
-            <h4>🌐 Website Development</h4>
-            <p>Build a professional website that converts visitors to customers.</p>
-          </div>
-          <div class="card">
-            <h4>⚡ Business Automation</h4>
-            <p>Automate repetitive tasks and streamline your operations.</p>
-          </div>
-          <div class="card">
-            <h4>🎨 Branding & Design</h4>
-            <p>Create a memorable brand identity that stands out.</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="view">
-        <h2 class="text-center mb-xl">For Freelancers</h2>
-        <div class="grid grid-2">
-          <div class="card">
-            <h4>💼 Quality Projects</h4>
-            <p>Access vetted business opportunities from serious clients ready to invest in quality work.</p>
-          </div>
-          <div class="card">
-            <h4>💰 Fair Compensation</h4>
-            <p>Set your own rates and get paid securely for the value you deliver.</p>
-          </div>
-          <div class="card">
-            <h4>🚀 Grow Your Business</h4>
-            <p>Build your reputation with reviews, expand your portfolio, and attract more clients.</p>
-          </div>
-          <div class="card">
-            <h4>🤝 Direct Communication</h4>
-            <p>Connect directly with business owners without intermediaries or unnecessary fees.</p>
-          </div>
-        </div>
-      </section>
-    </div>
-  `;
-}
-
-// ===== Login Page =====
+﻿// ===== Login Page =====
 export async function renderLoginPage() {
   const app = document.getElementById('app');
   app.innerHTML = `
@@ -183,13 +51,8 @@ async function handleLogin(e) {
 }
 
 // ===== Signup Page =====
-export async function renderSignupPage(params = {}) {
+export async function renderSignupPage() {
   const app = document.getElementById('app');
-
-  // Get role from URL hash parameter if provided
-  const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
-  const preSelectedRole = urlParams.get('role') || params.role || '';
-  const roleUpperCase = preSelectedRole.toUpperCase();
   app.innerHTML = `
     <div class="view">
       <div class="container-sm">
@@ -212,8 +75,8 @@ export async function renderSignupPage(params = {}) {
               <label class="form-label" for="role">I am a...</label>
               <select id="role" class="form-select" required>
                 <option value="">Select role</option>
-                <option value="BUSINESS_OWNER" ${roleUpperCase === 'BUSINESS_OWNER' ? 'selected' : ''}>Business Owner</option>
-                <option value="FREELANCER" ${roleUpperCase === 'FREELANCER' ? 'selected' : ''}>Freelancer</option>
+                <option value="BUSINESS_OWNER">Business Owner</option>
+                <option value="FREELANCER">Freelancer</option>
               </select>
             </div>
             <button type="submit" class="btn btn-primary btn-block btn-lg">Sign Up</button>
@@ -314,9 +177,9 @@ function renderJobCard(job) {
       </div>
       <p>${job.description.substring(0, 200)}${job.description.length > 200 ? '...' : ''}</p>
       <div class="job-meta">
-        <span>💰 ${formatCurrency(job.budget_min)} - ${formatCurrency(job.budget_max)}</span>
-        <span>📅 ${formatDate(job.created_at)}</span>
-        <span>📝 ${job._count?.proposals || 0} proposals</span>
+        <span>ðŸ’° ${formatCurrency(job.budget_min)} - ${formatCurrency(job.budget_max)}</span>
+        <span>ðŸ“… ${formatDate(job.created_at)}</span>
+        <span>ðŸ“ ${job._count?.proposals || 0} proposals</span>
       </div>
     </div>
   `;
@@ -472,7 +335,7 @@ export async function renderJobDetail(params) {
     app.innerHTML = `
       <div class="view">
         <div class="container">
-          <a href="#/business/dashboard" class="btn btn-secondary mb-lg">← Back to Dashboard</a>
+          <a href="#/business/dashboard" class="btn btn-secondary mb-lg">â† Back to Dashboard</a>
           
           <div class="card">
             <div class="flex flex-between mb-lg">
@@ -492,9 +355,9 @@ export async function renderJobDetail(params) {
             </div>
             
             <div class="job-meta">
-              <span>📂 ${job.category}</span>
-              <span>📅 Posted ${formatDate(job.created_at)}</span>
-              <span>⏰ Deadline: ${formatDate(job.deadline)}</span>
+              <span>ðŸ“‚ ${job.category}</span>
+              <span>ðŸ“… Posted ${formatDate(job.created_at)}</span>
+              <span>â° Deadline: ${formatDate(job.deadline)}</span>
             </div>
           </div>
           
@@ -674,9 +537,9 @@ function renderFreelancerJobCard(job) {
       </div>
       <p>${job.description.substring(0, 200)}${job.description.length > 200 ? '...' : ''}</p>
       <div class="job-meta">
-        <span>💰 ${formatCurrency(job.budget_min)} - ${formatCurrency(job.budget_max)}</span>
-        <span>📅 ${formatDate(job.created_at)}</span>
-        <span>⏰ Deadline: ${formatDate(job.deadline)}</span>
+        <span>ðŸ’° ${formatCurrency(job.budget_min)} - ${formatCurrency(job.budget_max)}</span>
+        <span>ðŸ“… ${formatDate(job.created_at)}</span>
+        <span>â° Deadline: ${formatDate(job.deadline)}</span>
       </div>
     </div>
   `;
@@ -694,7 +557,7 @@ export async function renderJobDetailFreelancer(params) {
     app.innerHTML = `
       <div class="view">
         <div class="container">
-          <a href="#/freelancer/jobs" class="btn btn-secondary mb-lg">← Back to Jobs</a>
+          <a href="#/freelancer/jobs" class="btn btn-secondary mb-lg">â† Back to Jobs</a>
           
           <div class="card">
             <h1 class="mb-md">${job.title}</h1>
@@ -720,13 +583,13 @@ export async function renderJobDetailFreelancer(params) {
             </div>
             
             <div class="job-meta mb-lg">
-              <span>📅 Posted ${formatDate(job.created_at)}</span>
-              <span>👤 Posted by ${job.owner?.name || 'Business Owner'}</span>
+              <span>ðŸ“… Posted ${formatDate(job.created_at)}</span>
+              <span>ðŸ‘¤ Posted by ${job.owner?.name || 'Business Owner'}</span>
             </div>
             
             ${hasProposed ? `
               <div class="card" style="background: var(--color-bg-elevated);">
-                <p class="text-success">✓ You've already submitted a proposal for this job!</p>
+                <p class="text-success">âœ“ You've already submitted a proposal for this job!</p>
               </div>
             ` : `
               <div>
@@ -1056,7 +919,7 @@ export async function renderSubscription() {
                   </div>
                   <div style="text-align: right;">
                     <div style="font-size: var(--font-size-2xl); font-weight: bold; color: var(--color-primary);">
-                      £${currentPlan.price}
+                      Â£${currentPlan.price}
                     </div>
                     <p class="text-muted" style="margin: var(--space-xs) 0 0;">
                       ${currentPlan.name === 'Trial' ? 'for 14 days' : 'per month'}
@@ -1065,7 +928,7 @@ export async function renderSubscription() {
                 </div>
                 <div class="flex gap-sm" style="padding-top: var(--space-md); border-top: 1px solid var(--color-border);">
                   <span class="badge badge-success">${currentPlan.status}</span>
-                  <span class="text-muted">•</span>
+                  <span class="text-muted">â€¢</span>
                   <span class="text-muted">${currentPlan.platformFee}% platform fee</span>
                 </div>
               </div>
@@ -1090,7 +953,7 @@ export async function renderSubscription() {
                 <div class="pricing-badge">14 Days Free</div>
                 <h3 class="pricing-title">Trial</h3>
                 <div class="pricing-amount">
-                  <span class="pricing-currency">£</span>
+                  <span class="pricing-currency">Â£</span>
                   <span class="pricing-value">0</span>
                 </div>
                 <p class="pricing-period">for 14 days</p>
@@ -1120,7 +983,7 @@ export async function renderSubscription() {
                 <div class="pricing-badge pricing-badge-popular">Most Popular</div>
                 <h3 class="pricing-title">Starter</h3>
                 <div class="pricing-amount">
-                  <span class="pricing-currency">£</span>
+                  <span class="pricing-currency">Â£</span>
                   <span class="pricing-value">25</span>
                 </div>
                 <p class="pricing-period">per month</p>
@@ -1151,7 +1014,7 @@ export async function renderSubscription() {
                 <div class="pricing-badge pricing-badge-premium">Premium</div>
                 <h3 class="pricing-title">Growth</h3>
                 <div class="pricing-amount">
-                  <span class="pricing-currency">£</span>
+                  <span class="pricing-currency">Â£</span>
                   <span class="pricing-value">50</span>
                 </div>
                 <p class="pricing-period">per month</p>
@@ -1253,7 +1116,7 @@ export async function renderMessages(params) {
       <div class="view">
         <div class="container-sm">
           <a href="${state.user.role === 'BUSINESS_OWNER' ? '#/business/job/' + params.jobId : '#/freelancer/dashboard'}" 
-             class="btn btn-secondary mb-lg">← Back</a>
+             class="btn btn-secondary mb-lg">â† Back</a>
           
           <div class="card">
             <h2 class="mb-md">Messages: ${job.title}</h2>
@@ -1327,7 +1190,7 @@ export async function renderPricingPage() {
             <div class="pricing-badge">14 Days Free</div>
             <h3 class="pricing-title">Trial</h3>
             <div class="pricing-amount">
-              <span class="pricing-currency">£</span>
+              <span class="pricing-currency">Â£</span>
               <span class="pricing-value">0</span>
             </div>
             <p class="pricing-period">for 14 days</p>
@@ -1351,7 +1214,7 @@ export async function renderPricingPage() {
             <div class="pricing-badge pricing-badge-popular">Most Popular</div>
             <h3 class="pricing-title">Starter</h3>
             <div class="pricing-amount">
-              <span class="pricing-currency">£</span>
+              <span class="pricing-currency">Â£</span>
               <span class="pricing-value">25</span>
             </div>
             <p class="pricing-period">per month</p>
@@ -1376,7 +1239,7 @@ export async function renderPricingPage() {
             <div class="pricing-badge pricing-badge-premium">Premium</div>
             <h3 class="pricing-title">Growth</h3>
             <div class="pricing-amount">
-              <span class="pricing-currency">£</span>
+              <span class="pricing-currency">Â£</span>
               <span class="pricing-value">50</span>
             </div>
             <p class="pricing-period">per month</p>
@@ -1454,7 +1317,7 @@ export async function renderVerificationSent() {
     <div class="view">
       <div class="container-sm">
         <div class="card text-center">
-          <div style="font-size: 4rem; margin-bottom: var(--space-lg);">📧</div>
+          <div style="font-size: 4rem; margin-bottom: var(--space-lg);">ðŸ“§</div>
           <h1 class="card-title">Check Your Email</h1>
           <p style="font-size: var(--font-size-lg); margin-bottom: var(--space-xl);">
             We've sent a verification link to <strong>${email}</strong>
@@ -1517,7 +1380,7 @@ export async function renderEmailVerification(params) {
       <div class="view">
         <div class="container-sm">
           <div class="card text-center">
-            <div style="font-size: 5rem; margin-bottom: var(--space-lg);">✅</div>
+            <div style="font-size: 5rem; margin-bottom: var(--space-lg);">âœ…</div>
             <h1 class="card-title" style="color: var(--color-success);">Email Verified!</h1>
             <p style="font-size: var(--font-size-lg); margin-bottom: var(--space-xl);">
               ${response.message || 'Your email has been successfully verified.'}
@@ -1549,7 +1412,7 @@ export async function renderEmailVerification(params) {
       <div class="view">
         <div class="container-sm">
           <div class="card text-center">
-            <div style="font-size: 5rem; margin-bottom: var(--space-lg);">⚠️</div>
+            <div style="font-size: 5rem; margin-bottom: var(--space-lg);">âš ï¸</div>
             <h1 class="card-title" style="color: var(--color-error);">Verification Failed</h1>
             <p style="font-size: var(--font-size-lg); margin-bottom: var(--space-xl);">
               ${error.message || 'Unable to verify your email address.'}
@@ -1587,434 +1450,4 @@ export async function renderEmailVerification(params) {
       };
     }
   }
-}
-
-// ===== For Businesses Page =====
-export async function renderForBusinessesPage() {
-  const app = document.getElementById('app');
-
-  app.innerHTML = `
-    <div class="view">
-      <!-- Hero Section -->
-      <div class="hero">
-        <div class="container">
-          <h1 class="hero-title">Grow Your Business with Expert Freelancers</h1>
-          <p class="hero-subtitle">
-            FlowPartner connects you with vetted professionals who can handle your marketing, 
-            development, and automation needs—so you can focus on what you do best.
-          </p>
-          <div class="hero-cta">
-            <a href="#/signup?role=business_owner" class="btn btn-primary btn-lg">Join as a Business</a>
-            <a href="#/pricing" class="btn btn-secondary btn-lg">View Pricing</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="container">
-        <!-- How It Works Section -->
-        <section class="view">
-          <h2 class="text-center mb-xl">How FlowPartner Works for Businesses</h2>
-          <div class="grid grid-3">
-            <div class="card">
-              <div style="font-size: 3rem; margin-bottom: var(--space-md);">🎯</div>
-              <h3>1. Post Your Project</h3>
-              <p>Create a detailed job posting using our AI-powered templates or write your own. Specify your budget, timeline, and requirements.</p>
-              <ul style="color: var(--color-text-secondary); margin-top: var(--space-md);">
-                <li>Use AI templates for common tasks</li>
-                <li>Set your own budget and timeline</li>
-                <li>Add specific requirements</li>
-              </ul>
-            </div>
-            <div class="card">
-              <div style="font-size: 3rem; margin-bottom: var(--space-md);">👥</div>
-              <h3>2. Review Proposals</h3>
-              <p>Receive proposals from vetted freelancers within hours. Compare their experience, portfolios, and pricing to find the perfect match.</p>
-              <ul style="color: var(--color-text-secondary); margin-top: var(--space-md);">
-                <li>View freelancer portfolios</li>
-                <li>Check reviews and ratings</li>
-                <li>Compare proposals side-by-side</li>
-              </ul>
-            </div>
-            <div class="card">
-              <div style="font-size: 3rem; margin-bottom: var(--space-md);">🚀</div>
-              <h3>3. Collaborate & Deliver</h3>
-              <p>Work directly with your chosen freelancer through our platform. Track progress, communicate in real-time, and pay securely when satisfied.</p>
-              <ul style="color: var(--color-text-secondary); margin-top: var(--space-md);">
-                <li>Built-in messaging system</li>
-                <li>Track project milestones</li>
-                <li>Secure payment processing</li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        <!-- Services Section -->
-        <section class="view" style="background: var(--color-bg-secondary); padding: var(--space-3xl); border-radius: var(--radius-xl); margin: var(--space-3xl) 0;">
-          <h2 class="text-center mb-xl">Services We Offer</h2>
-          <div class="grid grid-2">
-            <div class="card" style="background: var(--color-bg-elevated);">
-              <div style="font-size: 2.5rem; margin-bottom: var(--space-md);">📱</div>
-              <h4>Digital Marketing</h4>
-              <p class="mb-md">Boost your online presence and reach more customers</p>
-              <ul style="color: var(--color-text-secondary);">
-                <li>Facebook & Instagram ads</li>
-                <li>Google Ads campaigns</li>
-                <li>SEO optimization</li>
-                <li>Social media management</li>
-                <li>Email marketing</li>
-              </ul>
-            </div>
-            <div class="card" style="background: var(--color-bg-elevated);">
-              <div style="font-size: 2.5rem; margin-bottom: var(--space-md);">💻</div>
-              <h4>Web Development</h4>
-              <p class="mb-md">Create a professional online presence</p>
-              <ul style="color: var(--color-text-secondary);">
-                <li>Custom website design</li>
-                <li>E-commerce platforms</li>
-                <li>Landing pages</li>
-                <li>Website maintenance</li>
-                <li>Mobile-responsive design</li>
-              </ul>
-            </div>
-            <div class="card" style="background: var(--color-bg-elevated);">
-              <div style="font-size: 2.5rem; margin-bottom: var(--space-md);">⚡</div>
-              <h4>Business Automation</h4>
-              <p class="mb-md">Save time and increase efficiency</p>
-              <ul style="color: var(--color-text-secondary);">
-                <li>Workflow automation</li>
-                <li>CRM setup & integration</li>
-                <li>Data processing</li>
-                <li>Email automation</li>
-                <li>Custom scripts & tools</li>
-              </ul>
-            </div>
-            <div class="card" style="background: var(--color-bg-elevated);">
-              <div style="font-size: 2.5rem; margin-bottom: var(--space-md);">🎨</div>
-              <h4>Design & Branding</h4>
-              <p class="mb-md">Stand out with professional design</p>
-              <ul style="color: var(--color-text-secondary);">
-                <li>Logo design</li>
-                <li>Brand identity</li>
-                <li>Marketing materials</li>
-                <li>Product packaging</li>
-                <li>UI/UX design</li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        <!-- Benefits Section -->
-        <section class="view">
-          <h2 class="text-center mb-xl">Why Choose FlowPartner?</h2>
-          <div class="grid grid-2">
-            <div class="card">
-              <h4>✅ Vetted Professionals</h4>
-              <p>Every freelancer on our platform is carefully vetted to ensure quality and reliability. Work with confidence knowing you're hiring the best.</p>
-            </div>
-            <div class="card">
-              <h4>💰 Transparent Pricing</h4>
-              <p>No surprises. See exact costs upfront with clear pricing and low platform fees. Only pay when you're satisfied with the work.</p>
-            </div>
-            <div class="card">
-              <h4>⚡ Fast Turnaround</h4>
-              <p>Get proposals within hours and start projects quickly. Our freelancers are ready to deliver results on your timeline.</p>
-            </div>
-            <div class="card">
-              <h4>🛡️ Secure Payments</h4>
-              <p>Your payments are protected. Funds are only released when you approve the completed work, ensuring quality and accountability.</p>
-            </div>
-            <div class="card">
-              <h4>🤖 AI-Powered Matching</h4>
-              <p>Our AI helps match you with the perfect freelancer based on your project needs, budget, and timeline requirements.</p>
-            </div>
-            <div class="card">
-              <h4>📞 Dedicated Support</h4>
-              <p>Get help when you need it. Our support team is here to ensure your projects run smoothly from start to finish.</p>
-            </div>
-          </div>
-        </section>
-
-        <!-- Pricing Highlight -->
-        <section class="view">
-          <div class="card text-center" style="background: var(--gradient-primary); border: none; padding: var(--space-3xl);">
-            <h2 style="color: white; margin-bottom: var(--space-md);">Start Free for 14 Days</h2>
-            <p style="color: rgba(255,255,255,0.9); font-size: var(--font-size-lg); margin-bottom: var(--space-md);">
-              Post up to 2 jobs for free during your trial period. No credit card required.
-            </p>
-            <p style="color: rgba(255,255,255,0.9); margin-bottom: var(--space-xl);">
-              After trial: Plans start at just £25/month with unlimited job postings
-            </p>
-            <div style="display: flex; gap: var(--space-md); justify-content: center; flex-wrap: wrap;">
-              <a href="#/signup?role=business_owner" class="btn btn-secondary btn-lg" style="background: white; color: var(--color-primary);">
-                Start Free Trial
-              </a>
-              <a href="#/pricing" class="btn btn-secondary btn-lg" style="background: transparent; border: 2px solid white; color: white;">
-                View All Plans
-              </a>
-            </div>
-          </div>
-        </section>
-
-        <!-- Success Stories -->
-        <section class="view">
-          <h2 class="text-center mb-xl">Success Stories</h2>
-          <div class="grid grid-3">
-            <div class="card">
-              <div class="mb-md">
-                <span style="color: var(--color-warning);">⭐⭐⭐⭐⭐</span>
-              </div>
-              <p style="font-style: italic; margin-bottom: var(--space-lg);">
-                "FlowPartner helped me find an amazing freelancer who completely transformed our Facebook ads. Sales increased by 40% in the first month!"
-              </p>
-              <p class="text-muted"><strong>Sarah M.</strong> - E-commerce Owner</p>
-            </div>
-            <div class="card">
-              <div class="mb-md">
-                <span style="color: var(--color-warning);">⭐⭐⭐⭐⭐</span>
-              </div>
-              <p style="font-style: italic; margin-bottom: var(--space-lg);">
-                "I needed a website fast, and FlowPartner delivered. Found a developer in hours, had a beautiful site in 2 weeks. Incredible value."
-              </p>
-              <p class="text-muted"><strong>James T.</strong> - Local Service Business</p>
-            </div>
-            <div class="card">
-              <div class="mb-md">
-                <span style="color: var(--color-warning);">⭐⭐⭐⭐⭐</span>
-              </div>
-              <p style="font-style: italic; margin-bottom: var(--space-lg);">
-                "The automation expert I hired saved me 10 hours a week. Best investment I've made for my business this year."
-              </p>
-              <p class="text-muted"><strong>Michael R.</strong> - Consultant</p>
-            </div>
-          </div>
-        </section>
-      </div>
-    </div>
-  `;
-}
-
-// ===== For Freelancers Page =====
-export async function renderForFreelancersPage() {
-  const app = document.getElementById('app');
-
-  app.innerHTML = `
-    <div class="view">
-      <!-- Hero Section -->
-      <div class="hero">
-        <div class="container">
-          <h1 class="hero-title">Find Quality Clients & Grow Your Freelance Business</h1>
-          <p class="hero-subtitle">
-            Connect with serious business owners who value your expertise. No bidding wars, 
-            fair pay, and projects that match your skills.
-          </p>
-          <div class="hero-cta">
-            <a href="#/signup?role=freelancer" class="btn btn-primary btn-lg">Join as Freelancer</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="container">
-        <!-- How It Works Section -->
-        <section class="view">
-          <h2 class="text-center mb-xl">How FlowPartner Works for Freelancers</h2>
-          <div class="grid grid-3">
-            <div class="card">
-              <div style="font-size: 3rem; margin-bottom: var(--space-md);">🔍</div>
-              <h3>1. Browse Quality Jobs</h3>
-              <p>Access a curated feed of projects from verified business owners. Filter by your skills, budget range, and timeline preferences.</p>
-              <ul style="color: var(--color-text-secondary); margin-top: var(--space-md);">
-                <li>Verified business clients only</li>
-                <li>Clear project requirements</li>
-                <li>Fair budget expectations</li>
-              </ul>
-            </div>
-            <div class="card">
-              <div style="font-size: 3rem; margin-bottom: var(--space-md);">💼</div>
-              <h3>2. Submit Proposals</h3>
-              <p>Send personalized proposals to projects that interest you. Showcase your portfolio, set your rate, and explain how you'll deliver value.</p>
-              <ul style="color: var(--color-text-secondary); margin-top: var(--space-md);">
-                <li>No race to the bottom pricing</li>
-                <li>Highlight your expertise</li>
-                <li>Direct client communication</li>
-              </ul>
-            </div>
-            <div class="card">
-              <div style="font-size: 3rem; margin-bottom: var(--space-md);">💰</div>
-              <h3>3. Get Hired & Paid</h3>
-              <p>Work directly with clients, deliver great results, and get paid securely. Build your reputation with reviews and grow your income.</p>
-              <ul style="color: var(--color-text-secondary); margin-top: var(--space-md);">
-                <li>Secure payment protection</li>
-                <li>Build your portfolio</li>
-                <li>Earn client reviews</li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        <!-- Categories Section -->
-        <section class="view" style="background: var(--color-bg-secondary); padding: var(--space-3xl); border-radius: var(--radius-xl); margin: var(--space-3xl) 0;">
-          <h2 class="text-center mb-xl">Popular Categories</h2>
-          <div class="grid grid-2">
-            <div class="card" style="background: var(--color-bg-elevated);">
-              <h4>📱 Digital Marketing</h4>
-              <p class="mb-md">Help businesses grow their online presence</p>
-              <ul style="color: var(--color-text-secondary);">
-                <li>Social media advertising (Facebook, Instagram, TikTok)</li>
-                <li>Google Ads & PPC campaigns</li>
-                <li>SEO & content marketing</li>
-                <li>Email marketing & automation</li>
-                <li>Analytics & reporting</li>
-              </ul>
-            </div>
-            <div class="card" style="background: var(--color-bg-elevated);">
-              <h4>💻 Web Development</h4>
-              <p class="mb-md">Build and maintain professional websites</p>
-              <ul style="color: var(--color-text-secondary);">
-                <li>Custom website development</li>
-                <li>WordPress & CMS platforms</li>
-                <li>E-commerce solutions (Shopify, WooCommerce)</li>
-                <li>Landing page optimization</li>
-                <li>Website maintenance & updates</li>
-              </ul>
-            </div>
-            <div class="card" style="background: var(--color-bg-elevated);">
-              <h4>⚡ Automation & Integration</h4>
-              <p class="mb-md">Streamline business operations</p>
-              <ul style="color: var(--color-text-secondary);">
-                <li>Zapier & Make.com automation</li>
-                <li>CRM setup and integration</li>
-                <li>Custom scripts & tools</li>
-                <li>API integrations</li>
-                <li>Data processing & migration</li>
-              </ul>
-            </div>
-            <div class="card" style="background: var(--color-bg-elevated);">
-              <h4>🎨 Design & Creative</h4>
-              <p class="mb-md">Create stunning visual content</p>
-              <ul style="color: var(--color-text-secondary);">
-                <li>Logo & brand identity design</li>
-                <li>Marketing materials & graphics</li>
-                <li>UI/UX design</li>
-                <li>Video editing & animation</li>
-                <li>Product photography</li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        <!-- Benefits Section -->
-        <section class="view">
-          <h2 class="text-center mb-xl">Why Freelancers Choose FlowPartner</h2>
-          <div class="grid grid-2">
-            <div class="card">
-              <h4>💼 Quality Clients</h4>
-              <p>Work with verified business owners who understand the value of professional services. No tire-kickers or low-ball offers.</p>
-            </div>
-            <div class="card">
-              <h4>💰 Fair Pay</h4>
-              <p>Set your own rates and keep more of what you earn. Low platform fees mean more money in your pocket for the work you do.</p>
-            </div>
-            <div class="card">
-              <h4>🎯 Relevant Projects</h4>
-              <p>Our AI matching helps connect you with projects that fit your skills and interests. No more sifting through irrelevant jobs.</p>
-            </div>
-            <div class="card">
-              <h4>🛡️ Payment Protection</h4>
-              <p>Get paid for your work with our secure payment system. Funds are held in escrow and released when you deliver.</p>
-            </div>
-            <div class="card">
-              <h4>📈 Build Your Reputation</h4>
-              <p>Earn reviews, build your portfolio, and attract more high-paying clients. Your success is our success.</p>
-            </div>
-            <div class="card">
-              <h4>🤝 Direct Communication</h4>
-              <p>Work directly with clients without middlemen. Build lasting relationships and secure repeat business.</p>
-            </div>
-          </div>
-        </section>
-
-        <!-- Earning Potential -->
-        <section class="view">
-          <div class="card" style="background: var(--gradient-accent); border: none; padding: var(--space-3xl);">
-            <div class="grid grid-2" style="align-items: center; gap: var(--space-2xl);">
-              <div>
-                <h2 style="color: white; margin-bottom: var(--space-md);">Your Skills Are Valuable</h2>
-                <p style="color: rgba(255,255,255,0.9); font-size: var(--font-size-lg); margin-bottom: var(--space-md);">
-                  FlowPartner freelancers earn competitive rates for quality work:
-                </p>
-                <ul style="color: rgba(255,255,255,0.9); font-size: var(--font-size-lg); margin-bottom: var(--space-xl);">
-                  <li>Digital Marketing: £500 - £2,000+ per project</li>
-                  <li>Web Development: £1,000 - £5,000+ per site</li>
-                  <li>Automation: £300 - £1,500+ per workflow</li>
-                  <li>Design: £250 - £2,000+ per package</li>
-                </ul>
-                <a href="#/signup?role=freelancer" class="btn btn-secondary btn-lg" style="background: white; color: var(--color-accent);">
-                  Start Earning Today
-                </a>
-              </div>
-              <div style="background: rgba(255,255,255,0.1); border-radius: var(--radius-xl); padding: var(--space-xl); backdrop-filter: blur(10px);">
-                <h3 style="color: white; margin-bottom: var(--space-md);">Platform Fees</h3>
-                <div style="color: rgba(255,255,255,0.9);">
-                  <p class="mb-md">We keep our fees low so you can earn more:</p>
-                  <p style="font-size: var(--font-size-2xl); font-weight: bold; color: white; margin-bottom: var(--space-sm);">
-                    Only 2-5%
-                  </p>
-                  <p class="text-muted" style="color: rgba(255,255,255,0.7);">
-                    Much lower than other platforms (which charge 10-20%)
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Success Stories -->
-        <section class="view">
-          <h2 class="text-center mb-xl">Freelancer Success Stories</h2>
-          <div class="grid grid-3">
-            <div class="card">
-              <div class="mb-md">
-                <span style="color: var(--color-warning);">⭐⭐⭐⭐⭐</span>
-              </div>
-              <p style="font-style: italic; margin-bottom: var(--space-lg);">
-                "I've doubled my monthly income since joining FlowPartner. The clients are professional, projects are well-defined, and I get paid on time."
-              </p>
-              <p class="text-muted"><strong>Alex K.</strong> - Facebook Ads Specialist</p>
-            </div>
-            <div class="card">
-              <div class="mb-md">
-                <span style="color: var(--color-warning);">⭐⭐⭐⭐⭐</span>
-              </div>
-              <p style="font-style: italic; margin-bottom: var(--space-lg);">
-                "Finally, a platform where businesses understand quality costs. No more competing with $5 offers. I can charge what I'm worth."
-              </p>
-              <p class="text-muted"><strong>Maria S.</strong> - Web Developer</p>
-            </div>
-            <div class="card">
-              <div class="mb-md">
-                <span style="color: var(--color-warning);">⭐⭐⭐⭐⭐</span>
-              </div>
-              <p style="font-style: italic; margin-bottom: var(--space-lg);">
-                "The AI matching is incredible. Every project suggestion is relevant to my skills. I'm booked 3 months in advance now!"
-              </p>
-              <p class="text-muted"><strong>David L.</strong> - Automation Expert</p>
-            </div>
-          </div>
-        </section>
-
-        <!-- CTA Section -->
-        <section class="view">
-          <div class="card text-center" style="background: var(--gradient-primary); border: none; padding: var(--space-3xl);">
-            <h2 style="color: white; margin-bottom: var(--space-md);">Ready to Grow Your Freelance Business?</h2>
-            <p style="color: rgba(255,255,255,0.9); font-size: var(--font-size-lg); margin-bottom: var(--space-xl);">
-              Join FlowPartner today and start connecting with quality clients who value your expertise
-            </p>
-            <a href="#/signup?role=freelancer" class="btn btn-secondary btn-lg" style="background: white; color: var(--color-primary);">
-              Create Your Free Profile
-            </a>
-          </div>
-        </section>
-      </div>
-    </div>
-  `;
 }
